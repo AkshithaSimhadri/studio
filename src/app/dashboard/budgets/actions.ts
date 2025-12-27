@@ -2,8 +2,7 @@
 
 import { budgetingRecommendations } from "@/ai/flows/budgeting-recommendations";
 import { 
-  type BudgetingRecommendationsOutput, 
-  BudgetingRecommendationsOutputSchema 
+  type BudgetingRecommendationsOutput
 } from "@/ai/flows/budgeting-recommendations.types";
 import { placeholderTransactions } from "@/lib/placeholder-data";
 
@@ -17,14 +16,12 @@ export async function getBudgetingRecommendations(): Promise<BudgetingRecommenda
       .filter(t => t.type === 'expense')
       .map(t => ({ category: t.category, amount: t.amount }));
 
-    const recommendationsString = await budgetingRecommendations({
+    const recommendations = await budgetingRecommendations({
       income,
       expenses,
     });
     
-    const recommendations = JSON.parse(recommendationsString);
-    const parsed = BudgetingRecommendationsOutputSchema.parse(recommendations);
-    return parsed;
+    return recommendations;
   } catch (e) {
     console.error(e);
     return { error: "Failed to get budgeting recommendations." };

@@ -14,21 +14,20 @@ import {
   BudgetingRecommendationsInputSchema,
   type BudgetingRecommendationsInput,
   BudgetingRecommendationsOutputSchema,
+  type BudgetingRecommendationsOutput,
 } from './budgeting-recommendations.types';
 
 export async function budgetingRecommendations(
   input: BudgetingRecommendationsInput
-): Promise<string> {
+): Promise<BudgetingRecommendationsOutput> {
   return budgetingRecommendationsFlow(input);
 }
 
 const budgetingRecommendationsPrompt = ai.definePrompt({
   name: 'budgetingRecommendationsPrompt',
   input: { schema: BudgetingRecommendationsInputSchema },
-  output: { format: 'json' },
-  prompt: `You are an expert financial advisor. Generate personalized budget recommendations and actionable savings tips based on the user's income and expenses. Return the response as a JSON object that conforms to this schema:
-  
-  ${JSON.stringify(BudgetingRecommendationsOutputSchema.jsonSchema, null, 2)}
+  output: { schema: BudgetingRecommendationsOutputSchema },
+  prompt: `You are an expert financial advisor. Generate personalized budget recommendations and actionable savings tips based on the user's income and expenses.
 
   User Data:
   - Monthly Income: {{{income}}}
@@ -43,7 +42,7 @@ const budgetingRecommendationsFlow = ai.defineFlow(
   {
     name: 'budgetingRecommendationsFlow',
     inputSchema: BudgetingRecommendationsInputSchema,
-    outputSchema: z.string(),
+    outputSchema: BudgetingRecommendationsOutputSchema,
   },
   async (input) => {
     const { output } = await budgetingRecommendationsPrompt(input);
