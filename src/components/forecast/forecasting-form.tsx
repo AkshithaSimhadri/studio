@@ -75,7 +75,7 @@ export function ForecastingForm() {
                     Forecast My Finances
                 </>
                 )}
-            </Button>
+            </Button>        
         </CardContent>
       </Card>
 
