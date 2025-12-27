@@ -57,8 +57,8 @@ export function RecentTransactions() {
                 <TableCell
                   className={`text-right ${
                     transaction.type === "income"
-                      ? "text-green-600"
-                      : "text-red-600"
+                      ? "text-emerald-500"
+                      : "text-destructive"
                   }`}
                 >
                   {transaction.type === "income" ? "+" : "-"}

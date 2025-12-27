@@ -24,7 +24,7 @@ export function StatCard({ title, value, icon: Icon, change, changeType }: StatC
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
         {change && (
-          <p className={`text-xs ${changeType === 'positive' ? 'text-green-600' : 'text-red-600'}`}>
+          <p className={`text-xs ${changeType === 'positive' ? 'text-emerald-500' : 'text-destructive'}`}>
             {change} from last month
           </p>
         )}

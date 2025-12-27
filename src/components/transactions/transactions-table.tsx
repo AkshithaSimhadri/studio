@@ -81,7 +81,7 @@ export function TransactionsTable() {
                   variant={
                     transaction.type === "income" ? "default" : "secondary"
                   }
-                  className={transaction.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}
+                  className={transaction.type === 'income' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'}
                 >
                   {transaction.type}
                 </Badge>
@@ -95,8 +95,8 @@ export function TransactionsTable() {
               <TableCell
                 className={`text-right font-semibold ${
                   transaction.type === "income"
-                    ? "text-green-600"
-                    : "text-red-600"
+                    ? "text-emerald-500"
+                    : "text-destructive"
                 }`}
               >
                 {transaction.type === "income" ? "+" : "-"}
