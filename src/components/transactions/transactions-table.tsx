@@ -19,10 +19,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown } from "lucide-react";
-import { placeholderTransactions } from "@/lib/placeholder-data";
-import { categories, type Category } from "@/lib/types";
+import { categories, type Category, type Transaction } from "@/lib/types";
 
-export function TransactionsTable() {
+type TransactionsTableProps = {
+  transactions: Transaction[];
+};
+
+export function TransactionsTable({ transactions }: TransactionsTableProps) {
   const [categoryFilter, setCategoryFilter] = React.useState<Category[]>([]);
   const [isClient, setIsClient] = React.useState(false);
 
@@ -30,7 +33,7 @@ export function TransactionsTable() {
     setIsClient(true);
   }, []);
 
-  const filteredTransactions = placeholderTransactions.filter(
+  const filteredTransactions = transactions.filter(
     (transaction) =>
       categoryFilter.length === 0 ||
       categoryFilter.includes(transaction.category)
