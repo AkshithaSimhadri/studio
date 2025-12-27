@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import { DollarSign, TrendingUp, TrendingDown, Landmark } from "lucide-react";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { OverviewChart } from "@/components/dashboard/overview-chart";
@@ -5,8 +8,22 @@ import { RecentTransactions } from "@/components/dashboard/recent-transactions";
 import { placeholderGoals } from "@/lib/placeholder-data";
 import { GoalCard } from "@/components/goals/goal-card";
 import { AddGoalDialog } from "@/components/goals/add-goal-dialog";
+import type { Goal } from '@/lib/types';
 
 export default function DashboardPage() {
+  const [goals, setGoals] = useState<Goal[]>(placeholderGoals);
+
+  const addGoal = (newGoal: Omit<Goal, 'id' | 'currentAmount'>) => {
+    setGoals((prevGoals) => [
+      {
+        id: `g${Date.now()}`,
+        currentAmount: 0,
+        ...newGoal,
+      },
+      ...prevGoals,
+    ]);
+  };
+
   return (
     <div className="flex-1 space-y-4">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -50,10 +67,10 @@ export default function DashboardPage() {
          <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold tracking-tight">Financial Goals</h2>
-            <AddGoalDialog />
+            <AddGoalDialog onAddGoal={addGoal} />
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {placeholderGoals.map((goal) => (
+            {goals.map((goal) => (
               <GoalCard key={goal.id} goal={goal} />
             ))}
           </div>
