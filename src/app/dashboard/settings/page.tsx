@@ -1,3 +1,7 @@
+
+'use client';
+
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -18,6 +22,9 @@ import {
 } from "@/components/ui/select"
 
 export default function SettingsPage() {
+  const [theme, setTheme] = useState("light");
+  const [currency, setCurrency] = useState("usd");
+
   return (
     <div className="space-y-6">
       <div>
@@ -60,7 +67,7 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
              <div className="space-y-2">
               <Label htmlFor="theme">Theme</Label>
-              <Select>
+              <Select value={theme} onValueChange={setTheme}>
                 <SelectTrigger id="theme">
                   <SelectValue placeholder="Select theme" />
                 </SelectTrigger>
@@ -73,7 +80,7 @@ export default function SettingsPage() {
             </div>
              <div className="space-y-2">
               <Label htmlFor="currency">Currency</Label>
-              <Select>
+              <Select value={currency} onValueChange={setCurrency}>
                 <SelectTrigger id="currency">
                   <SelectValue placeholder="Select currency" />
                 </SelectTrigger>
