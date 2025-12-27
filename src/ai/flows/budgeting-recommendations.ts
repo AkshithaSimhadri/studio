@@ -51,34 +51,18 @@ export async function budgetingRecommendations(
   return budgetingRecommendationsFlow(input);
 }
 
-const budgetingRecommendationsPrompt = ai.definePrompt({
-  name: 'budgetingRecommendationsPrompt',
-  input: {schema: BudgetingRecommendationsInputSchema},
-  output: {schema: BudgetingRecommendationsOutputSchema},
-  prompt: `You are an expert financial advisor. Based on the user's income and expenses, generate a set of budget recommendations and savings tips.
-
-Provide the output in a valid JSON format that strictly follows this structure:
-{
-  "budgetRecommendations": [
-    {
-      "category": "string",
-      "recommendedAmount": "number",
-      "rationale": "string"
-    }
-  ],
-  "savingsTips": [
-    "string"
-  ]
-}
-
-Analyze the following financial data:
-- Monthly Income: {{{income}}}
-- Expenses:
-{{#each expenses}}
-  - {{{category}}}: {{{amount}}}
-{{/each}}
-`,
-});
+const saveBudgetRecommendations = ai.defineTool(
+  {
+    name: 'saveBudgetRecommendations',
+    description: 'Saves the generated budget recommendations and savings tips.',
+    inputSchema: BudgetingRecommendationsOutputSchema,
+    outputSchema: z.void(),
+  },
+  async (input) => {
+    // In a real app, you might save this to a database.
+    // For now, we just use it to structure the AI's output.
+  }
+)
 
 const budgetingRecommendationsFlow = ai.defineFlow(
   {
@@ -86,8 +70,25 @@ const budgetingRecommendationsFlow = ai.defineFlow(
     inputSchema: BudgetingRecommendationsInputSchema,
     outputSchema: BudgetingRecommendationsOutputSchema,
   },
-  async input => {
-    const {output} = await budgetingRecommendationsPrompt(input);
-    return output!;
+  async (input) => {
+    const response = await ai.generate({
+      prompt: `You are an expert financial advisor. Your goal is to help the user create a budget.
+Analyze the user's income and expenses to generate personalized budget recommendations and actionable savings tips.
+Call the \`saveBudgetRecommendations\` tool with the results.
+
+- Monthly Income: ${input.income}
+- Expenses:
+${input.expenses.map(e => `  - ${e.category}: ${e.amount}`).join('\n')}
+`,
+      tools: [saveBudgetRecommendations],
+      model: ai.getModel('googleai/gemini-2.5-flash'),
+    });
+
+    const toolRequest = response.toolRequest();
+    if (!toolRequest || toolRequest.tool.name !== 'saveBudgetRecommendations') {
+      throw new Error('Expected the model to call the saveBudgetRecommendations tool.');
+    }
+    
+    return toolRequest.input;
   }
 );
