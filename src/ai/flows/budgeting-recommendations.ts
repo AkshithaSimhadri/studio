@@ -15,16 +15,16 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const BudgetingRecommendationsInputSchema = z.object({
-  income: z.number().describe('The user\u2019s monthly income.'),
+  income: z.number().describe('The user’s monthly income.'),
   expenses: z
     .array(z.object({
       category: z.string().describe('The category of the expense.'),
       amount: z.number().describe('The amount spent in that category.'),
     }))
-    .describe('An array of the user\u2019s expenses.'),
+    .describe('An array of the user’s expenses.'),
   financialGoals: z
     .array(z.string())
-    .describe('An array of the user\u2019s financial goals.'),
+    .describe('An array of the user’s financial goals.'),
 });
 export type BudgetingRecommendationsInput = z.infer<
   typeof BudgetingRecommendationsInputSchema
@@ -60,16 +60,15 @@ const budgetingRecommendationsPrompt = ai.definePrompt({
   output: {schema: BudgetingRecommendationsOutputSchema},
   prompt: `You are an AI-powered personal finance advisor. Analyze the user's income, expenses, and financial goals to provide personalized budget recommendations and savings tips.
 
-  Income: {{{income}}}
-  Expenses:
+  User's financial data:
+  - Monthly Income: {{{income}}}
+  - Expenses:
   {{#each expenses}}
-  - Category: {{{category}}}, Amount: {{{amount}}}
+    - {{{category}}}: {{{amount}}}
   {{/each}}
-  Financial Goals: {{#each financialGoals}}{{{this}}}, {{/each}}
+  - Financial Goals: {{#each financialGoals}}{{{this}}}{{/each}}
 
-  Based on this information, provide specific budget recommendations for each expense category, including the recommended amount and a brief rationale. Also, offer personalized savings tips to help the user achieve their financial goals.
-
-  Format your response as a JSON object with \"budgetRecommendations\" (array of category, recommendedAmount, and rationale) and \"savingsTips\" (array of strings).
+  Generate budget recommendations and savings tips based on this data.
   `,
 });
 
