@@ -11,8 +11,8 @@ export async function getExpenseForecast(investmentStrategies?: string): Promise
       investmentStrategies: investmentStrategies || "Standard savings growth of 2% annually.",
     });
     return forecast;
-  } catch (e) {
-    console.error(e);
-    return { error: "Failed to get expense forecast." };
+  } catch (e: any) {
+    console.error("AI predictiveExpenseForecasting flow failed:", e);
+    return { error: `Failed to get expense forecast. ${e.message || ''}` };
   }
 }
