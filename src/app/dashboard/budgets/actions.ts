@@ -11,6 +11,13 @@ import type { Category } from "@/lib/types";
 const needsCategories: Category[] = ["Groceries", "Bills & Utilities", "Transport", "Health", "Rent"];
 const wantsCategories: Category[] = ["Food", "Shopping", "Entertainment", "Travel"];
 
+const defaultSavingsTips = [
+  "Create a detailed monthly budget and stick to it.",
+  "Review your subscriptions and cancel any you don't use.",
+  "Try cooking more meals at home instead of eating out.",
+  "Set up automatic transfers to your savings account each payday.",
+];
+
 export async function getBudgetingRecommendations(): Promise<FullBudgetingRecommendationsOutput | { error: string }> {
   try {
     const income = placeholderTransactions
@@ -64,7 +71,7 @@ export async function getBudgetingRecommendations(): Promise<FullBudgetingRecomm
     // 3. Combine results
     const finalOutput: FullBudgetingRecommendationsOutput = {
       budgetRecommendations,
-      savingsTips: aiResult.savingsTips,
+      savingsTips: aiResult?.savingsTips ?? defaultSavingsTips,
     };
     
     return finalOutput;
