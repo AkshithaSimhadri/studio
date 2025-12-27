@@ -58,17 +58,13 @@ const financialGuidancePrompt = ai.definePrompt({
   name: 'financialGuidancePrompt',
   input: {schema: FinancialGuidanceInputSchema},
   output: {schema: FinancialGuidanceOutputSchema},
-  prompt: `You are an AI-powered financial advisor providing personalized guidance to users.
+  prompt: `You are an AI-powered financial advisor. Generate personalized guidance for the user based on their financial data.
+  
+  User's Financial Situation: {{{financialSituation}}}
+  User's Goals: {{{goals}}}
+  User's Interests: {{{interests}}}
 
-  Based on the user's financial situation, goals, and interests, offer tailored suggestions for loans, business strategies, and investment ideas.
-  Provide clear explanations of the risks and potential returns associated with each option.
-
-  Financial Situation: {{{financialSituation}}}
-  Goals: {{{goals}}}
-  Interests: {{{interests}}}
-
-  Consider all factors carefully and provide well-reasoned and practical advice.
-  Format the output to align with the schema descriptions. Do not provide any introductory or concluding remarks, simply present the requested suggestions and explanations.
+  Provide tailored suggestions for loans, business strategies, and investment ideas, along with clear explanations of the risks and potential returns for each.
   `,
 });
 
