@@ -1,3 +1,6 @@
+
+"use client";
+
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,9 +21,16 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { placeholderTransactions } from "@/lib/placeholder-data";
+import { useState, useEffect } from "react";
 
 export function RecentTransactions() {
+  const [isClient, setIsClient] = useState(false);
   const recentTransactions = placeholderTransactions.slice(0, 5);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   return (
     <Card>
@@ -68,7 +78,7 @@ export function RecentTransactions() {
                   <Badge variant="outline">{transaction.category}</Badge>
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">
-                    {new Date(transaction.date).toLocaleDateString()}
+                    {isClient ? new Date(transaction.date).toLocaleDateString() : ''}
                 </TableCell>
               </TableRow>
             ))}

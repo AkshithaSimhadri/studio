@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -23,6 +24,11 @@ import { categories, type Category } from "@/lib/types";
 
 export function TransactionsTable() {
   const [categoryFilter, setCategoryFilter] = React.useState<Category[]>([]);
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const filteredTransactions = placeholderTransactions.filter(
     (transaction) =>
@@ -90,7 +96,7 @@ export function TransactionsTable() {
                 <Badge variant="outline">{transaction.category}</Badge>
               </TableCell>
               <TableCell>
-                {new Date(transaction.date).toLocaleDateString()}
+                {isClient ? new Date(transaction.date).toLocaleDateString() : ''}
               </TableCell>
               <TableCell
                 className={`text-right font-semibold ${
