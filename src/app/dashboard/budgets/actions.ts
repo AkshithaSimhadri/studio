@@ -2,7 +2,8 @@
 
 import { budgetingRecommendations } from "@/ai/flows/budgeting-recommendations";
 import { 
-  type FullBudgetingRecommendationsOutput
+  type FullBudgetingRecommendationsOutput,
+  type BudgetingRecommendationsOutput
 } from "@/ai/flows/budgeting-recommendations.types";
 import { placeholderTransactions } from "@/lib/placeholder-data";
 import type { Category } from "@/lib/types";
@@ -29,10 +30,16 @@ export async function getBudgetingRecommendations(): Promise<FullBudgetingRecomm
       .map(t => ({ category: t.category, amount: t.amount }));
 
     // 1. Get savings tips from AI (creative task)
-    const aiResult = await budgetingRecommendations({
-      income,
-      expenses,
-    });
+    let aiResult: BudgetingRecommendationsOutput | null = null;
+    try {
+        aiResult = await budgetingRecommendations({
+            income,
+            expenses,
+        });
+    } catch (aiError) {
+        console.error("AI budgetingRecommendations flow failed:", aiError);
+        // Don't surface the error to the user, just use default tips.
+    }
     
     // 2. Calculate budget recommendations in code (logical task)
     const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
@@ -77,7 +84,7 @@ export async function getBudgetingRecommendations(): Promise<FullBudgetingRecomm
     return finalOutput;
 
   } catch (e) {
-    console.error(e);
+    console.error("Error in getBudgetingRecommendations:", e);
     return { error: "Failed to get budgeting recommendations." };
   }
 }
