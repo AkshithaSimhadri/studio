@@ -23,7 +23,10 @@ const BudgetingRecommendationsInputSchema = z.object({
     }))
     .describe('An array of the user’s expenses.'),
   financialGoals: z
-    .array(z.string())
+    .array(z.object({
+        name: z.string().describe('The name of the financial goal.'),
+        targetAmount: z.number().describe('The target amount for the goal.'),
+      }))
     .describe('An array of the user’s financial goals.'),
 });
 export type BudgetingRecommendationsInput = z.infer<
@@ -66,7 +69,10 @@ const budgetingRecommendationsPrompt = ai.definePrompt({
   {{#each expenses}}
     - {{{category}}}: {{{amount}}}
   {{/each}}
-  - Financial Goals: {{#each financialGoals}}{{{this}}}{{/each}}
+  - Financial Goals: 
+  {{#each financialGoals}}
+    - {{{name}}}: {{{targetAmount}}}
+  {{/each}}
   `,
 });
 

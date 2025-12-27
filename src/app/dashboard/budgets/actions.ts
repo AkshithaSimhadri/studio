@@ -13,7 +13,7 @@ export async function getBudgetingRecommendations(): Promise<BudgetingRecommenda
       .filter(t => t.type === 'expense')
       .map(t => ({ category: t.category, amount: t.amount }));
 
-    const financialGoals = placeholderGoals.map(g => `${g.name} ($${g.targetAmount})`);
+    const financialGoals = placeholderGoals.map(g => ({ name: g.name, targetAmount: g.targetAmount }));
 
     const recommendations = await budgetingRecommendations({
       income,
