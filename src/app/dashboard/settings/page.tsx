@@ -110,6 +110,7 @@ export default function SettingsPage() {
                   <SelectItem value="usd">USD (United States Dollar)</SelectItem>
                   <SelectItem value="eur">EUR (Euro)</SelectItem>
                   <SelectItem value="gbp">GBP (British Pound)</SelectItem>
+                  <SelectItem value="inr">INR (Indian Rupee)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
