@@ -27,7 +27,7 @@ export type BudgetingRecommendationsInput = z.infer<
   typeof BudgetingRecommendationsInputSchema
 >;
 
-const BudgetingRecommendationsOutputSchema = z.object({
+export const BudgetingRecommendationsOutputSchema = z.object({
   budgetRecommendations: z
     .array(z.object({
       category: z.string().describe('The category to budget for.'),
@@ -45,31 +45,35 @@ export type BudgetingRecommendationsOutput = z.infer<
   typeof BudgetingRecommendationsOutputSchema
 >;
 
+
 export async function budgetingRecommendations(
   input: BudgetingRecommendationsInput
-): Promise<BudgetingRecommendationsOutput> {
+): Promise<string> {
   return budgetingRecommendationsFlow(input);
 }
 
 const budgetingRecommendationsPrompt = ai.definePrompt({
   name: 'budgetingRecommendationsPrompt',
   input: {schema: BudgetingRecommendationsInputSchema},
-  output: {schema: BudgetingRecommendationsOutputSchema},
-  prompt: `You are an expert financial advisor. Generate personalized budget recommendations and actionable savings tips based on the user's income and expenses.
+  output: {format: 'json'},
+  prompt: `You are an expert financial advisor. Generate personalized budget recommendations and actionable savings tips based on the user's income and expenses. Return the response as a JSON object that conforms to this schema:
+  
+  ${JSON.stringify(BudgetingRecommendationsOutputSchema.jsonSchema, null, 2)}
 
-- Monthly Income: {{{income}}}
-- Expenses:
-{{#each expenses}}
-  - {{category}}: {{{amount}}}
-{{/each}}
-`,
+  User Data:
+  - Monthly Income: {{{income}}}
+  - Expenses:
+  {{#each expenses}}
+    - {{category}}: {{{amount}}}
+  {{/each}}
+  `,
 });
 
 const budgetingRecommendationsFlow = ai.defineFlow(
   {
     name: 'budgetingRecommendationsFlow',
     inputSchema: BudgetingRecommendationsInputSchema,
-    outputSchema: BudgetingRecommendationsOutputSchema,
+    outputSchema: z.string(),
   },
   async (input) => {
     const {output} = await budgetingRecommendationsPrompt(input);
