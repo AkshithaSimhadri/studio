@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -90,7 +91,7 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
              <div className="space-y-2">
               <Label htmlFor="theme">Theme</Label>
-              <Select value={theme} onValueChange={(value) => setTheme(value)}>
+              <Select value={theme} onValueChange={setTheme}>
                 <SelectTrigger id="theme">
                   <SelectValue placeholder="Select theme" />
                 </SelectTrigger>
@@ -103,7 +104,7 @@ export default function SettingsPage() {
             </div>
              <div className="space-y-2">
               <Label htmlFor="currency">Currency</Label>
-              <Select value={currency} onValueChange={(value) => setCurrency(value)}>
+              <Select value={currency} onValueChange={setCurrency}>
                 <SelectTrigger id="currency">
                   <SelectValue placeholder="Select currency" />
                 </SelectTrigger>
