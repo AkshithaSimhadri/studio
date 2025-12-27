@@ -1,3 +1,6 @@
+
+"use client";
+
 import type { Goal } from "@/lib/types";
 import {
   Card,
@@ -10,17 +13,32 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { differenceInDays, formatDistanceToNow, parseISO } from 'date-fns';
+import { useState, useEffect } from "react";
+
+type DeadlineInfo = {
+  text: string;
+  variant: "destructive" | "secondary" | "outline";
+};
 
 export function GoalCard({ goal }: { goal: Goal }) {
+  const [deadlineInfo, setDeadlineInfo] = useState<DeadlineInfo | null>(null);
   const progress = (goal.currentAmount / goal.targetAmount) * 100;
-  const deadline = parseISO(goal.deadline);
-  const daysLeft = differenceInDays(deadline, new Date());
-  
-  const getDeadlineBadgeVariant = () => {
-    if (daysLeft < 0) return 'destructive';
-    if (daysLeft < 30) return 'secondary';
-    return 'outline';
-  }
+
+  useEffect(() => {
+    const deadline = parseISO(goal.deadline);
+    const daysLeft = differenceInDays(deadline, new Date());
+
+    const getDeadlineBadgeVariant = () => {
+      if (daysLeft < 0) return 'destructive';
+      if (daysLeft < 30) return 'secondary';
+      return 'outline';
+    };
+
+    setDeadlineInfo({
+      text: daysLeft < 0 ? 'Overdue' : `${formatDistanceToNow(deadline)} left`,
+      variant: getDeadlineBadgeVariant(),
+    });
+  }, [goal.deadline]);
 
   return (
     <Card>
@@ -40,9 +58,13 @@ export function GoalCard({ goal }: { goal: Goal }) {
         </p>
       </CardContent>
       <CardFooter>
-        <Badge variant={getDeadlineBadgeVariant()}>
-          {daysLeft < 0 ? 'Overdue' : `${formatDistanceToNow(deadline)} left`}
-        </Badge>
+        {deadlineInfo ? (
+          <Badge variant={deadlineInfo.variant}>
+            {deadlineInfo.text}
+          </Badge>
+        ) : (
+          <div className="h-6 w-24 animate-pulse rounded-full bg-muted" />
+        )}
       </CardFooter>
     </Card>
   );
