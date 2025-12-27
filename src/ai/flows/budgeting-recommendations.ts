@@ -22,12 +22,6 @@ const BudgetingRecommendationsInputSchema = z.object({
       amount: z.number().describe('The amount spent in that category.'),
     }))
     .describe('An array of the user’s expenses.'),
-  financialGoals: z
-    .array(z.object({
-        name: z.string().describe('The name of the financial goal.'),
-        targetAmount: z.number().describe('The target amount for the goal.'),
-      }))
-    .describe('An array of the user’s financial goals.'),
 });
 export type BudgetingRecommendationsInput = z.infer<
   typeof BudgetingRecommendationsInputSchema
@@ -61,17 +55,13 @@ const budgetingRecommendationsPrompt = ai.definePrompt({
   name: 'budgetingRecommendationsPrompt',
   input: {schema: BudgetingRecommendationsInputSchema},
   output: {schema: BudgetingRecommendationsOutputSchema},
-  prompt: `You are an AI-powered personal finance advisor. Generate personalized budget recommendations and savings tips based on the user's income, expenses, and financial goals.
+  prompt: `You are an AI-powered personal finance advisor. Generate personalized budget recommendations and savings tips based on the user's income and expenses.
 
   User's financial data:
   - Monthly Income: {{{income}}}
   - Expenses:
   {{#each expenses}}
     - {{{category}}}: {{{amount}}}
-  {{/each}}
-  - Financial Goals: 
-  {{#each financialGoals}}
-    - {{{name}}}: {{{targetAmount}}}
   {{/each}}
   `,
 });

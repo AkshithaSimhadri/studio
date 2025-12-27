@@ -1,7 +1,7 @@
 "use server";
 
 import { budgetingRecommendations, type BudgetingRecommendationsOutput } from "@/ai/flows/budgeting-recommendations";
-import { placeholderTransactions, placeholderGoals } from "@/lib/placeholder-data";
+import { placeholderTransactions } from "@/lib/placeholder-data";
 
 export async function getBudgetingRecommendations(): Promise<BudgetingRecommendationsOutput | { error: string }> {
   try {
@@ -13,12 +13,9 @@ export async function getBudgetingRecommendations(): Promise<BudgetingRecommenda
       .filter(t => t.type === 'expense')
       .map(t => ({ category: t.category, amount: t.amount }));
 
-    const financialGoals = placeholderGoals.map(g => ({ name: g.name, targetAmount: g.targetAmount }));
-
     const recommendations = await budgetingRecommendations({
       income,
       expenses,
-      financialGoals,
     });
     return recommendations;
   } catch (e) {
