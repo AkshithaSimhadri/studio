@@ -10,12 +10,8 @@ import { AreaChart, Loader2 } from "lucide-react";
 import { getExpenseForecast } from "@/app/dashboard/forecast/actions";
 import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
+import { type PredictiveExpenseForecastingOutput } from "@/ai/flows/predictive-expense-forecasting";
 
-type ForecastData = {
-    forecastedExpenses: { month: string; amount: number }[];
-    forecastedSavings: { month: string; amount: number }[];
-    insights: string;
-};
 
 const chartConfig = {
     expenses: {
@@ -29,7 +25,7 @@ const chartConfig = {
 };
 
 export function ForecastingForm() {
-  const [forecast, setForecast] = useState<ForecastData | null>(null);
+  const [forecast, setForecast] = useState<PredictiveExpenseForecastingOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [investmentStrategy, setInvestmentStrategy] = useState("");
@@ -42,15 +38,7 @@ export function ForecastingForm() {
     if ("error" in result) {
       setError(result.error);
     } else {
-        try {
-            setForecast({
-                forecastedExpenses: JSON.parse(result.forecastedExpenses),
-                forecastedSavings: JSON.parse(result.forecastedSavings),
-                insights: result.insights,
-            });
-        } catch(e) {
-            setError("Failed to parse forecast data from AI response.");
-        }
+      setForecast(result);
     }
     setLoading(false);
   };

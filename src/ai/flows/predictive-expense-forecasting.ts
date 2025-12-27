@@ -35,15 +35,17 @@ export type PredictiveExpenseForecastingInput = z.infer<
 >;
 
 const PredictiveExpenseForecastingOutputSchema = z.object({
-  forecastedExpenses: z
-    .string()
-    .describe('Forecasted future expenses, as a JSON string.'),
-  forecastedSavings: z
-    .string()
-    .describe('Forecasted future savings, as a JSON string.'),
+  forecastedExpenses: z.array(z.object({
+    month: z.string().describe("The month for the forecast (e.g., 'Aug 2024')."),
+    amount: z.number().describe("The forecasted expense amount for that month."),
+  })).describe('Forecasted future expenses for the next 6 months.'),
+  forecastedSavings: z.array(z.object({
+    month: z.string().describe("The month for the forecast (e.g., 'Aug 2024')."),
+    amount: z.number().describe("The forecasted savings amount for that month."),
+  })).describe('Forecasted future savings for the next 6 months.'),
   insights: z
     .string()
-    .describe('Insights and recommendations based on the forecast.'),
+    .describe('Actionable insights and recommendations based on the forecast.'),
 });
 export type PredictiveExpenseForecastingOutput = z.infer<
   typeof PredictiveExpenseForecastingOutputSchema
@@ -59,16 +61,11 @@ const prompt = ai.definePrompt({
   name: 'predictiveExpenseForecastingPrompt',
   input: {schema: PredictiveExpenseForecastingInputSchema},
   output: {schema: PredictiveExpenseForecastingOutputSchema},
-  prompt: `You are an AI-powered personal finance advisor. Analyze the user's historical financial data, savings goals, and investment strategies to forecast future expenses and savings.
+  prompt: `You are an AI-powered personal finance advisor. Generate a forecast of future expenses and savings for the next 6 months based on the user's historical financial data, savings goals, and investment strategies. Also provide actionable insights.
 
   Historical Data: {{{historicalData}}}
   Savings Goals: {{{savingsGoals}}}
   Investment Strategies: {{{investmentStrategies}}}
-
-  Provide a detailed forecast of future expenses and savings, along with actionable insights and recommendations to help the user achieve their financial goals. Consider different \"what-if\" scenarios based on various savings and investment strategies.
-
-  Ensure that the forecasted expenses and savings are realistic and aligned with the user's financial situation. Present the results in a clear and concise manner.
-  Return the forecasted expenses, forecasted savings, and insights as JSON strings.
   `,
 });
 
