@@ -51,18 +51,19 @@ export async function budgetingRecommendations(
   return budgetingRecommendationsFlow(input);
 }
 
-const saveBudgetRecommendations = ai.defineTool(
-  {
-    name: 'saveBudgetRecommendations',
-    description: 'Saves the generated budget recommendations and savings tips.',
-    inputSchema: BudgetingRecommendationsOutputSchema,
-    outputSchema: z.void(),
-  },
-  async (input) => {
-    // In a real app, you might save this to a database.
-    // For now, we just use it to structure the AI's output.
-  }
-)
+const budgetingRecommendationsPrompt = ai.definePrompt({
+  name: 'budgetingRecommendationsPrompt',
+  input: {schema: BudgetingRecommendationsInputSchema},
+  output: {schema: BudgetingRecommendationsOutputSchema},
+  prompt: `You are an expert financial advisor. Generate personalized budget recommendations and actionable savings tips based on the user's income and expenses.
+
+- Monthly Income: {{{income}}}
+- Expenses:
+{{#each expenses}}
+  - {{category}}: {{{amount}}}
+{{/each}}
+`,
+});
 
 const budgetingRecommendationsFlow = ai.defineFlow(
   {
@@ -71,24 +72,7 @@ const budgetingRecommendationsFlow = ai.defineFlow(
     outputSchema: BudgetingRecommendationsOutputSchema,
   },
   async (input) => {
-    const response = await ai.generate({
-      prompt: `You are an expert financial advisor. Your goal is to help the user create a budget.
-Analyze the user's income and expenses to generate personalized budget recommendations and actionable savings tips.
-Call the \`saveBudgetRecommendations\` tool with the results.
-
-- Monthly Income: ${input.income}
-- Expenses:
-${input.expenses.map(e => `  - ${e.category}: ${e.amount}`).join('\n')}
-`,
-      tools: [saveBudgetRecommendations],
-      model: ai.getModel('googleai/gemini-2.5-flash'),
-    });
-
-    const toolRequest = response.toolRequest();
-    if (!toolRequest || toolRequest.tool.name !== 'saveBudgetRecommendations') {
-      throw new Error('Expected the model to call the saveBudgetRecommendations tool.');
-    }
-    
-    return toolRequest.input;
+    const {output} = await budgetingRecommendationsPrompt(input);
+    return output!;
   }
 );
