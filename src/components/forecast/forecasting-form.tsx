@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -5,15 +6,26 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { AreaChart, Loader2, BarChart } from "lucide-react";
+import { AreaChart, Loader2 } from "lucide-react";
 import { getExpenseForecast } from "@/app/dashboard/forecast/actions";
 import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
-import { ChartTooltipContent } from "@/components/ui/chart";
+import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 
 type ForecastData = {
     forecastedExpenses: { month: string; amount: number }[];
     forecastedSavings: { month: string; amount: number }[];
     insights: string;
+};
+
+const chartConfig = {
+    expenses: {
+        label: "Expenses",
+        color: "hsl(var(--chart-2))",
+    },
+    savings: {
+        label: "Savings",
+        color: "hsl(var(--chart-1))",
+    },
 };
 
 export function ForecastingForm() {
@@ -42,6 +54,13 @@ export function ForecastingForm() {
     }
     setLoading(false);
   };
+
+  const chartData = forecast ? forecast.forecastedExpenses.map((exp, i) => ({
+    month: exp.month,
+    expenses: exp.amount,
+    savings: forecast.forecastedSavings[i]?.amount || 0,
+  })) : [];
+
 
   return (
     <div className="space-y-6">
@@ -93,18 +112,20 @@ export function ForecastingForm() {
                     <CardTitle>Forecasted Expenses & Savings</CardTitle>
                     <CardDescription>Based on your data and the provided scenario.</CardDescription>
                 </CardHeader>
-                <CardContent className="h-[400px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <RechartsBarChart data={forecast.forecastedExpenses.map((exp, i) => ({ ...exp, savings: forecast.forecastedSavings[i].amount }))}>
-                            <CartesianGrid vertical={false} />
-                            <XAxis dataKey="month" tickLine={false} axisLine={false} />
-                            <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
-                            <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
-                            <Legend />
-                            <Bar dataKey="amount" name="Expenses" fill="hsl(var(--chart-2))" radius={4} />
-                            <Bar dataKey="savings" name="Savings" fill="hsl(var(--chart-1))" radius={4} />
-                        </RechartsBarChart>
-                    </ResponsiveContainer>
+                <CardContent>
+                   <ChartContainer config={chartConfig} className="h-[400px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <RechartsBarChart data={chartData}>
+                                <CartesianGrid vertical={false} />
+                                <XAxis dataKey="month" tickLine={false} axisLine={false} />
+                                <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                                <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
+                                <Legend />
+                                <Bar dataKey="expenses" name="Expenses" fill="var(--color-expenses)" radius={4} />
+                                <Bar dataKey="savings" name="Savings" fill="var(--color-savings)" radius={4} />
+                            </RechartsBarChart>
+                        </ResponsiveContainer>
+                    </ChartContainer>
                 </CardContent>
             </Card>
             <Card>
