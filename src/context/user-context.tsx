@@ -23,7 +23,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   return (
     <UserContext.Provider value={{ user, setUser }}>
       {children}
-    </UserContext.NowProvider>
+    </UserContext.Provider>
   );
 }
 
