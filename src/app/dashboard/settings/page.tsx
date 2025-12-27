@@ -20,10 +20,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useToast } from "@/hooks/use-toast";
 
 export default function SettingsPage() {
+  const [name, setName] = useState("Alex Doe");
+  const [email, setEmail] = useState("alex@example.com");
   const [theme, setTheme] = useState("light");
   const [currency, setCurrency] = useState("usd");
+
+  const { toast } = useToast();
+
+  const handleSaveProfile = () => {
+    toast({
+      title: "Profile Saved",
+      description: "Your profile information has been updated.",
+    });
+  };
+  
+  const handleSavePreferences = () => {
+    toast({
+      title: "Preferences Saved",
+      description: "Your preferences have been updated.",
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -45,15 +64,15 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
-              <Input id="name" defaultValue="Alex Doe" />
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue="alex@example.com" />
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
           </CardContent>
           <CardFooter>
-            <Button>Save Profile</Button>
+            <Button onClick={handleSaveProfile}>Save Profile</Button>
           </CardFooter>
         </Card>
 
@@ -93,7 +112,7 @@ export default function SettingsPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button>Save Preferences</Button>
+            <Button onClick={handleSavePreferences}>Save Preferences</Button>
           </CardFooter>
         </Card>
       </div>
