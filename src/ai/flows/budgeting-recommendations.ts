@@ -55,7 +55,7 @@ const budgetingRecommendationsPrompt = ai.definePrompt({
   name: 'budgetingRecommendationsPrompt',
   input: {schema: BudgetingRecommendationsInputSchema},
   output: {schema: BudgetingRecommendationsOutputSchema},
-  prompt: `You are an AI-powered personal finance advisor. Generate personalized budget recommendations and savings tips based on the user's income and expenses.
+  prompt: `You are an AI-powered personal finance advisor. Your goal is to generate personalized budget recommendations and savings tips based on the user's income and expenses.
 
   User's financial data:
   - Monthly Income: {{{income}}}
