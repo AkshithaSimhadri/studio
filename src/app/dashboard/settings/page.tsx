@@ -41,6 +41,7 @@ export default function SettingsPage() {
   };
   
   const handleSavePreferences = () => {
+    // In a real app, you'd save these preferences to a backend or localStorage
     toast({
       title: "Preferences Saved",
       description: "Your preferences have been updated.",
@@ -89,7 +90,7 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
              <div className="space-y-2">
               <Label htmlFor="theme">Theme</Label>
-              <Select value={theme} onValueChange={setTheme}>
+              <Select value={theme} onValueChange={(value) => setTheme(value)}>
                 <SelectTrigger id="theme">
                   <SelectValue placeholder="Select theme" />
                 </SelectTrigger>
@@ -102,7 +103,7 @@ export default function SettingsPage() {
             </div>
              <div className="space-y-2">
               <Label htmlFor="currency">Currency</Label>
-              <Select value={currency} onValueChange={setCurrency}>
+              <Select value={currency} onValueChange={(value) => setCurrency(value)}>
                 <SelectTrigger id="currency">
                   <SelectValue placeholder="Select currency" />
                 </SelectTrigger>
