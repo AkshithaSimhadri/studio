@@ -1,7 +1,5 @@
-
 'use client';
 
-import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -21,16 +19,21 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast";
+import { useUser } from "@/context/user-context";
+import { useState } from "react";
 
 export default function SettingsPage() {
-  const [name, setName] = useState("Alex Doe");
-  const [email, setEmail] = useState("alex@example.com");
+  const { user, setUser } = useUser();
+  const [name, setName] = useState(user.name);
+  const [email, setEmail] = useState(user.email);
+  
   const [theme, setTheme] = useState("light");
   const [currency, setCurrency] = useState("usd");
 
   const { toast } = useToast();
 
   const handleSaveProfile = () => {
+    setUser({ name, email });
     toast({
       title: "Profile Saved",
       description: "Your profile information has been updated.",

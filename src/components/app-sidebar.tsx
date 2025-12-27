@@ -27,6 +27,7 @@ import {
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useSidebar } from "@/components/ui/sidebar";
+import { useUser } from "@/context/user-context";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -40,6 +41,7 @@ const navItems = [
 export function AppSidebar() {
   const pathname = usePathname();
   const { isMobile } = useSidebar();
+  const { user } = useUser();
 
   return (
     <Sidebar>
@@ -99,8 +101,8 @@ export function AppSidebar() {
                 </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-                <span className="text-sm font-semibold">Alex Doe</span>
-                <span className="text-xs text-muted-foreground">alex@example.com</span>
+                <span className="text-sm font-semibold">{user.name}</span>
+                <span className="text-xs text-muted-foreground">{user.email}</span>
             </div>
         </div>
       </SidebarFooter>
