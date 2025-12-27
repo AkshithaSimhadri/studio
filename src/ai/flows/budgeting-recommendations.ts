@@ -55,15 +55,29 @@ const budgetingRecommendationsPrompt = ai.definePrompt({
   name: 'budgetingRecommendationsPrompt',
   input: {schema: BudgetingRecommendationsInputSchema},
   output: {schema: BudgetingRecommendationsOutputSchema},
-  prompt: `You are an AI-powered personal finance advisor. Your goal is to generate personalized budget recommendations and savings tips based on the user's income and expenses.
+  prompt: `You are an expert financial advisor. Based on the user's income and expenses, generate a set of budget recommendations and savings tips.
 
-  User's financial data:
-  - Monthly Income: {{{income}}}
-  - Expenses:
-  {{#each expenses}}
-    - {{{category}}}: {{{amount}}}
-  {{/each}}
-  `,
+Provide the output in a valid JSON format that strictly follows this structure:
+{
+  "budgetRecommendations": [
+    {
+      "category": "string",
+      "recommendedAmount": "number",
+      "rationale": "string"
+    }
+  ],
+  "savingsTips": [
+    "string"
+  ]
+}
+
+Analyze the following financial data:
+- Monthly Income: {{{income}}}
+- Expenses:
+{{#each expenses}}
+  - {{{category}}}: {{{amount}}}
+{{/each}}
+`,
 });
 
 const budgetingRecommendationsFlow = ai.defineFlow(
