@@ -1,6 +1,10 @@
 "use server";
 
-import { budgetingRecommendations, type BudgetingRecommendationsOutput, BudgetingRecommendationsOutputSchema } from "@/ai/flows/budgeting-recommendations";
+import { budgetingRecommendations } from "@/ai/flows/budgeting-recommendations";
+import { 
+  type BudgetingRecommendationsOutput, 
+  BudgetingRecommendationsOutputSchema 
+} from "@/ai/flows/budgeting-recommendations.types";
 import { placeholderTransactions } from "@/lib/placeholder-data";
 
 export async function getBudgetingRecommendations(): Promise<BudgetingRecommendationsOutput | { error: string }> {
