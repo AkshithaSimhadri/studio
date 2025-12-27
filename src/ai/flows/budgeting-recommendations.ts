@@ -1,15 +1,14 @@
 'use server';
 
 /**
- * @fileOverview AI-Powered Budgeting Recommendations flow.
+ * @fileOverview AI-Powered savings tips generation.
  *
  * This file defines a Genkit flow that analyzes a user's spending patterns and income
- * to provide personalized budget recommendations.
+ * to provide personalized savings tips.
  *
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
 import {
   BudgetingRecommendationsInputSchema,
   type BudgetingRecommendationsInput,
@@ -27,7 +26,7 @@ const budgetingRecommendationsPrompt = ai.definePrompt({
   name: 'budgetingRecommendationsPrompt',
   input: { schema: BudgetingRecommendationsInputSchema },
   output: { schema: BudgetingRecommendationsOutputSchema },
-  prompt: `You are an expert financial advisor. Generate personalized budget recommendations and actionable savings tips based on the user's income and expenses.
+  prompt: `You are an expert financial advisor. Generate a short list of actionable savings tips based on the user's income and expenses.
 
   User Data:
   - Monthly Income: {{{income}}}

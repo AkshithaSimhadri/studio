@@ -15,22 +15,23 @@ export type BudgetingRecommendationsInput = z.infer<
   typeof BudgetingRecommendationsInputSchema
 >;
 
+// Only ask the AI for savings tips, which is a creative task.
 export const BudgetingRecommendationsOutputSchema = z.object({
-  budgetRecommendations: z
-    .array(
-      z.object({
-        category: z.string().describe('The category to budget for.'),
-        recommendedAmount: z.number().describe('The recommended budget amount.'),
-        rationale: z
-          .string()
-          .describe('The rationale behind the recommended amount.'),
-      })
-    )
-    .describe('An array of budget recommendations.'),
   savingsTips: z
     .array(z.string())
     .describe('Personalized tips to improve savings.'),
 });
+
 export type BudgetingRecommendationsOutput = z.infer<
   typeof BudgetingRecommendationsOutputSchema
 >;
+
+// The full output type that the component expects, which we will construct in code.
+export type FullBudgetingRecommendationsOutput = {
+  budgetRecommendations: {
+    category: string;
+    recommendedAmount: number;
+    rationale: string;
+  }[];
+  savingsTips: string[];
+};

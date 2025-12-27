@@ -27,6 +27,7 @@ export const categories = [
   'Groceries',
   'Salary',
   'Investments',
+  'Rent',
   'Other',
 ] as const;
 

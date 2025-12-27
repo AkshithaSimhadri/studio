@@ -4,11 +4,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PiggyBank, Lightbulb, Loader2 } from "lucide-react";
-import type { BudgetingRecommendationsOutput } from "@/ai/flows/budgeting-recommendations";
+import type { FullBudgetingRecommendationsOutput } from "@/ai/flows/budgeting-recommendations.types";
 import { getBudgetingRecommendations } from "@/app/dashboard/budgets/actions";
 
 export function BudgetingForm() {
-  const [recommendations, setRecommendations] = useState<BudgetingRecommendationsOutput | null>(null);
+  const [recommendations, setRecommendations] = useState<FullBudgetingRecommendationsOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
