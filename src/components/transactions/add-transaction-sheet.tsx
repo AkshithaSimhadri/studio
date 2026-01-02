@@ -41,6 +41,8 @@ export function AddTransactionSheet() {
   const [date, setDate] = useState('');
   const [open, setOpen] = useState(false);
 
+  const today = new Date().toISOString().split('T')[0];
+
   const handleSubmit = async () => {
     if (!description || !amount || !category || !date || !user || !firestore) {
         toast({
@@ -137,7 +139,7 @@ export function AddTransactionSheet() {
           </div>
            <div className="grid gap-2">
             <Label htmlFor="date">Date</Label>
-            <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} max={today} />
           </div>
         </div>
         <SheetFooter>
