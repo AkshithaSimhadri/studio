@@ -93,7 +93,7 @@ export function GoalCard({ goal }: { goal: FinancialGoal }) {
   };
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col bg-accent/10">
       <CardHeader>
         <div className="flex justify-between items-start">
             <div className="flex-1 pr-2">
