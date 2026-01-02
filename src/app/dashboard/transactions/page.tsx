@@ -48,7 +48,7 @@ export default function TransactionsPage() {
   const isLoading = isLoadingExpenses || isLoadingIncomes;
 
   return (
-    <div className="rounded-xl p-4 md:p-6 lg:p-8 -m-4 md:-m-6 lg:-m-8 bg-gradient-to-br from-secondary via-muted to-secondary bg-[length:400%_400%] animate-subtle-shift">
+    <div className="rounded-xl p-4 md:p-6 lg:p-8 -m-4 md:-m-6 lg:-m-8 bg-gradient-to-br from-pink-100 via-pink-50 to-pink-100 bg-[length:400%_400%] animate-subtle-shift dark:from-pink-900/30 dark:via-background dark:to-pink-900/30">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
