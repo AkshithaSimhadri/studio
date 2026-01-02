@@ -27,7 +27,8 @@ export function BudgetingForm() {
     }
 
     try {
-      const result = await getBudgetingRecommendations();
+      const idToken = await user.getIdToken();
+      const result = await getBudgetingRecommendations(idToken);
       
       if ('error' in result) {
         throw new Error(result.error || "An unexpected error occurred.");
