@@ -1,16 +1,16 @@
 
+
 'use client';
 
-import { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { FileText, FileType, Trash2 } from 'lucide-react';
+import { FileText, Trash2, ArrowLeft } from 'lucide-react';
 import { useUser, useFirestore, useCollection, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
-import { collection, orderBy, query } from 'firebase/firestore';
-import type { UploadHistoryItem } from '@/lib/types';
+import { collection, doc, orderBy, query } from 'firebase/firestore';
+import type { UploadHistoryItem, ExtractedTransaction } from '@/lib/types';
 import { format } from 'date-fns';
 import {
   AlertDialog,
@@ -26,10 +26,11 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 type UploadHistoryProps = {
-  newUploadId: string | null;
+  onViewAnalysis: (transactions: ExtractedTransaction[]) => void;
+  onBack: () => void;
 };
 
-export function UploadHistory({ newUploadId }: UploadHistoryProps) {
+export function UploadHistory({ onViewAnalysis, onBack }: UploadHistoryProps) {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
@@ -40,14 +41,6 @@ export function UploadHistory({ newUploadId }: UploadHistoryProps) {
   }, [user, firestore]);
 
   const { data: history, isLoading, error } = useCollection<UploadHistoryItem>(historyQuery);
-
-  // This effect is a bit of a trick to ensure the list re-fetches when a new item is added,
-  // even though `useCollection` is real-time. Sometimes there can be a slight delay,
-  // and this ensures consistency if we pass the new ID down.
-  useEffect(() => {
-    // The main purpose of this is to react if `newUploadId` changes,
-    // though the query itself is what will fetch the data.
-  }, [newUploadId]);
 
   const handleDelete = (item: UploadHistoryItem) => {
     if (!user || !firestore) return;
@@ -62,8 +55,16 @@ export function UploadHistory({ newUploadId }: UploadHistoryProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Upload History</CardTitle>
-        <CardDescription>A log of your previously uploaded transaction files.</CardDescription>
+        <div className="flex items-center justify-between">
+            <div>
+                <CardTitle>Upload History</CardTitle>
+                <CardDescription>A log of your previously uploaded transaction files. Click a row to view the analysis.</CardDescription>
+            </div>
+            <Button variant="outline" onClick={onBack}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Upload
+            </Button>
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading && (
@@ -96,7 +97,7 @@ export function UploadHistory({ newUploadId }: UploadHistoryProps) {
             </TableHeader>
             <TableBody>
               {history.map((item) => (
-                <TableRow key={item.id}>
+                <TableRow key={item.id} className="cursor-pointer" onClick={() => onViewAnalysis(item.transactions)}>
                   <TableCell className="font-medium">{item.fileName}</TableCell>
                   <TableCell>{format(new Date(item.uploadDate), 'PPp')}</TableCell>
                   <TableCell>
@@ -104,9 +105,9 @@ export function UploadHistory({ newUploadId }: UploadHistoryProps) {
                   </TableCell>
                   <TableCell>{item.transactionCount}</TableCell>
                   <TableCell className="text-right">
-                    <AlertDialog>
+                    <AlertDialog onOpenChange={(open) => {if(open) { event?.stopPropagation()}}}>
                       <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
                           <Trash2 className="h-4 w-4 text-destructive" />
                           <span className="sr-only">Delete</span>
                         </Button>
@@ -122,7 +123,10 @@ export function UploadHistory({ newUploadId }: UploadHistoryProps) {
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
                           <AlertDialogAction
                             className="bg-destructive hover:bg-destructive/90"
-                            onClick={() => handleDelete(item)}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(item)
+                            }}
                           >
                             Delete
                           </AlertDialogAction>

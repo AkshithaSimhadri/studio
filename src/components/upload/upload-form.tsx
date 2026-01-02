@@ -1,14 +1,15 @@
 
+
 "use client";
 
 import { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, UploadCloud } from 'lucide-react';
+import { Loader2, UploadCloud, History } from 'lucide-react';
 import type { ExtractedTransaction } from '@/lib/types';
 import { analyzeTransactions } from '@/app/dashboard/upload/actions';
 import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
@@ -16,7 +17,8 @@ import { collection } from 'firebase/firestore';
 
 
 type UploadFormProps = {
-  onUploadSuccess: (transactions: ExtractedTransaction[], uploadId: string) => void;
+  onUploadSuccess: (transactions: ExtractedTransaction[]) => void;
+  onViewHistory: () => void;
 };
 
 const readFileAsDataURI = (file: File): Promise<string> => {
@@ -37,7 +39,7 @@ const readFileAsText = (file: File): Promise<string> => {
     });
 };
 
-export function UploadForm({ onUploadSuccess }: UploadFormProps) {
+export function UploadForm({ onUploadSuccess, onViewHistory }: UploadFormProps) {
   const { register, handleSubmit, watch, reset } = useForm<{ file: FileList }>();
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -79,15 +81,16 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
 
       // Save to history
       const historyCollection = collection(firestore, 'users', user.uid, 'upload_history');
-      const historyDoc = await addDocumentNonBlocking(historyCollection, {
+      await addDocumentNonBlocking(historyCollection, {
         userId: user.uid,
         fileName: file.name,
         uploadDate: new Date().toISOString(),
         fileType: fileType,
         transactionCount: result.transactions.length,
+        transactions: result.transactions,
       });
 
-      onUploadSuccess(result.transactions, historyDoc?.id || '');
+      onUploadSuccess(result.transactions);
       toast({ title: 'Upload Successful', description: `${result.transactions.length} transactions were extracted and the upload has been recorded.` });
       reset();
 
@@ -104,27 +107,33 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
         <CardTitle>Upload Transaction File</CardTitle>
         <CardDescription>Select a PDF or CSV file containing your transaction history to be analyzed by AI.</CardDescription>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid gap-2">
-            <Label htmlFor="file-upload">Transaction Document</Label>
-            <Input id="file-upload" type="file" accept=".pdf,.csv" {...register('file', { required: true })} />
-          </div>
-          <Button type="submit" disabled={loading || !watchedFile || watchedFile.length === 0}>
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Analyzing...
-              </>
-            ) : (
-              <>
-                <UploadCloud className="mr-2 h-4 w-4" />
-                Upload and Analyze
-              </>
-            )}
-          </Button>
-        </form>
-      </CardContent>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <CardContent>
+            <div className="grid gap-2">
+                <Label htmlFor="file-upload">Transaction Document</Label>
+                <Input id="file-upload" type="file" accept=".pdf,.csv" {...register('file', { required: true })} />
+            </div>
+        </CardContent>
+        <CardFooter className="justify-between">
+            <Button type="submit" disabled={loading || !watchedFile || watchedFile.length === 0}>
+                {loading ? (
+                <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Analyzing...
+                </>
+                ) : (
+                <>
+                    <UploadCloud className="mr-2 h-4 w-4" />
+                    Upload and Analyze
+                </>
+                )}
+            </Button>
+            <Button variant="outline" type="button" onClick={onViewHistory}>
+                <History className="mr-2 h-4 w-4" />
+                View History
+            </Button>
+        </CardFooter>
+      </form>
     </Card>
   );
 }

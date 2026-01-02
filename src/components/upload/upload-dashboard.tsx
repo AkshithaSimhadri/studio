@@ -1,10 +1,11 @@
+
 "use client";
 
 import { useState, useMemo } from "react";
 import { UploadForm } from "@/components/upload/upload-form";
 import type { ExtractedTransaction } from "@/lib/types";
 
-import { DollarSign, TrendingUp, TrendingDown, Landmark } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, Landmark, ArrowLeft } from "lucide-react";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { OverviewChart } from "@/components/dashboard/overview-chart";
 import { RecentTransactions } from "@/components/dashboard/recent-transactions";
@@ -12,9 +13,11 @@ import type { Expense, Income } from '@/lib/types';
 import { Button } from "../ui/button";
 import { UploadHistory } from "./upload-history";
 
+type ViewState = 'form' | 'history' | 'analysis';
+
 export function UploadDashboard() {
+  const [view, setView] = useState<ViewState>('form');
   const [analyzedTransactions, setAnalyzedTransactions] = useState<ExtractedTransaction[] | null>(null);
-  const [lastUploadId, setLastUploadId] = useState<string | null>(null);
 
   const { totalIncome, totalExpenses, totalBalance, savingsRate, incomes, expenses } = useMemo(() => {
     if (!analyzedTransactions) {
@@ -40,19 +43,31 @@ export function UploadDashboard() {
   
   const handleReset = () => {
     setAnalyzedTransactions(null);
-    setLastUploadId(null);
+    setView('form');
   }
 
-  const handleSuccess = (transactions: ExtractedTransaction[], uploadId: string) => {
+  const handleUploadSuccess = (transactions: ExtractedTransaction[]) => {
     setAnalyzedTransactions(transactions);
-    setLastUploadId(uploadId);
+    setView('analysis');
   }
 
-  if (analyzedTransactions) {
+  const handleViewHistory = () => {
+    setView('history');
+  }
+
+  const handleViewAnalysis = (transactions: ExtractedTransaction[]) => {
+    setAnalyzedTransactions(transactions);
+    setView('analysis');
+  }
+
+  if (view === 'analysis') {
     return (
        <div className="flex-1 space-y-4">
-        <div className="flex justify-end">
-            <Button variant="outline" onClick={handleReset}>Upload Another File</Button>
+        <div className="flex justify-start">
+            <Button variant="outline" onClick={handleReset}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Upload
+            </Button>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <StatCard 
@@ -88,10 +103,13 @@ export function UploadDashboard() {
     )
   }
 
+  if (view === 'history') {
+    return <UploadHistory onViewAnalysis={handleViewAnalysis} onBack={() => setView('form')} />;
+  }
+
   return (
     <div className="space-y-8">
-      <UploadForm onUploadSuccess={handleSuccess} />
-      <UploadHistory newUploadId={lastUploadId} />
+      <UploadForm onUploadSuccess={handleUploadSuccess} onViewHistory={handleViewHistory} />
     </div>
   );
 }

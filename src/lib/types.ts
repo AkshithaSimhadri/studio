@@ -1,5 +1,6 @@
 
 
+
 // Base type for a transaction-like object
 interface TransactionLike {
   id: string;
@@ -82,6 +83,7 @@ export interface UploadHistoryItem {
   uploadDate: string;
   fileType: 'pdf' | 'csv';
   transactionCount: number;
+  transactions: ExtractedTransaction[];
 }
 
     
