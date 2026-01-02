@@ -1,3 +1,4 @@
+
 "use server";
 
 import {
@@ -12,19 +13,18 @@ import { initializeAdminApp } from "@/firebase/admin";
 import { headers } from "next/headers";
 import { getAuth } from "firebase-admin/auth";
 
-// Categorize expenses into Needs, Wants, and Savings/Other
 const needsCategories: Category[] = ["Groceries", "Bills & Utilities", "Transport", "Health", "Rent"];
 const wantsCategories: Category[] = ["Food", "Shopping", "Entertainment", "Travel"];
 
 async function getUserId() {
+    const { auth } = await initializeAdminApp();
     const headersList = headers();
     const authorization = headersList.get('Authorization');
     if (!authorization?.startsWith('Bearer ')) {
-        console.error("No authorization header found");
         throw new Error('Unauthorized');
     }
     const idToken = authorization.split('Bearer ')[1];
-    const decodedToken = await getAuth().verifyIdToken(idToken);
+    const decodedToken = await auth.verifyIdToken(idToken);
     return decodedToken.uid;
 }
 
@@ -42,20 +42,18 @@ async function getUserData(userId: string) {
 
 export async function getBudgetingRecommendations(): Promise<FullBudgetingRecommendationsOutput | { error: string }> {
   try {
-    const { auth } = await initializeAdminApp();
-    const headersList = headers();
-    const authorization = headersList.get('Authorization');
-
-    if (!authorization?.startsWith('Bearer ')) {
-        throw new Error('Unauthorized');
-    }
-    const idToken = authorization.split('Bearer ')[1];
-    const decodedToken = await auth.verifyIdToken(idToken);
-    const userId = decodedToken.uid;
+    const userId = await getUserId();
 
     const { incomes, expenses } = await getUserData(userId);
 
     const totalIncome = incomes.reduce((sum, t) => sum + t.amount, 0);
+
+    if (totalIncome === 0) {
+      return {
+        budgetRecommendations: [],
+        savingsTips: ["Start by adding some income to create a budget plan."]
+      }
+    }
 
     const expenseByCategory = expenses.reduce((acc, expense) => {
         if (!acc[expense.category]) {
