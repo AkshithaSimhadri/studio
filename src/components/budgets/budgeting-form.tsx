@@ -7,13 +7,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PiggyBank, Lightbulb, Loader2 } from "lucide-react";
 import type { FullBudgetingRecommendationsOutput } from "@/ai/flows/budgeting-recommendations.types";
 import { getBudgetingRecommendations } from "@/app/dashboard/budgets/actions";
-import { useAuth } from "@/firebase";
+import { useUser } from "@/firebase";
 
 export function BudgetingForm() {
   const [recommendations, setRecommendations] = useState<FullBudgetingRecommendationsOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { user } = useUser();
 
   const handleSubmit = async () => {
     setLoading(true);
