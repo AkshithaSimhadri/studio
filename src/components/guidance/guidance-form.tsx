@@ -10,12 +10,37 @@ import { Lightbulb, Loader2, Sparkles, Building, TrendingUp } from "lucide-react
 import { getGuidance } from "@/app/dashboard/guidance/actions";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { type FinancialGuidanceOutput } from "@/ai/flows/personalized-financial-guidance";
+import { Badge } from "@/components/ui/badge";
 
 type FormInputs = {
   financialSituation: string;
   goals: string;
   interests: string;
 };
+
+const riskVariantMap = {
+    'Low': 'default',
+    'Medium': 'secondary',
+    'High': 'destructive'
+} as const;
+
+
+function SuggestionCard({ suggestion }: { suggestion: FinancialGuidanceOutput['loanSuggestions'][0] }) {
+    return (
+        <div className="p-4 rounded-lg border bg-secondary/30">
+            <h4 className="font-semibold">{suggestion.suggestion}</h4>
+            <p className="text-sm text-muted-foreground mt-1">{suggestion.explanation}</p>
+            <div className="flex items-center gap-4 mt-3">
+                <Badge variant={riskVariantMap[suggestion.riskLevel] || 'outline'}>
+                    Risk: {suggestion.riskLevel}
+                </Badge>
+                 <div className="text-sm">
+                    <span className="font-semibold">Return:</span> {suggestion.potentialReturn}
+                </div>
+            </div>
+        </div>
+    )
+}
 
 export function GuidanceForm() {
   const [guidance, setGuidance] = useState<FinancialGuidanceOutput | null>(null);
@@ -102,36 +127,32 @@ export function GuidanceForm() {
             <CardDescription>Here are some tailored suggestions based on your input.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Accordion type="multiple" className="w-full space-y-4">
+            <Accordion type="multiple" defaultValue={['item-1']} className="w-full space-y-4">
               <AccordionItem value="item-1" className="border rounded-lg px-4 bg-background">
                 <AccordionTrigger className="font-semibold text-lg hover:no-underline">
                     <div className="flex items-center gap-3"><Building className="text-primary"/>Loan Suggestions</div>
                 </AccordionTrigger>
-                <AccordionContent className="pt-2">
-                  <ul className="list-disc list-inside space-y-2">{guidance.loanSuggestions.map((s, i) => <li key={i}>{s}</li>)}</ul>
+                <AccordionContent className="pt-2 space-y-3">
+                  {guidance.loanSuggestions.map((s, i) => <SuggestionCard key={`loan-${i}`} suggestion={s} />)}
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-2" className="border rounded-lg px-4 bg-background">
                 <AccordionTrigger className="font-semibold text-lg hover:no-underline">
                      <div className="flex items-center gap-3"><Sparkles className="text-primary"/>Business Strategies</div>
                 </AccordionTrigger>
-                <AccordionContent className="pt-2">
-                   <ul className="list-disc list-inside space-y-2">{guidance.businessStrategies.map((s, i) => <li key={i}>{s}</li>)}</ul>
+                <AccordionContent className="pt-2 space-y-3">
+                   {guidance.businessStrategies.map((s, i) => <SuggestionCard key={`biz-${i}`} suggestion={s} />)}
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-3" className="border rounded-lg px-4 bg-background">
                 <AccordionTrigger className="font-semibold text-lg hover:no-underline">
                     <div className="flex items-center gap-3"><TrendingUp className="text-primary"/>Investment Ideas</div>
                 </AccordionTrigger>
-                <AccordionContent className="pt-2">
-                   <ul className="list-disc list-inside space-y-2">{guidance.investmentIdeas.map((s, i) => <li key={i}>{s}</li>)}</ul>
+                <AccordionContent className="pt-2 space-y-3">
+                   {guidance.investmentIdeas.map((s, i) => <SuggestionCard key={`invest-${i}`} suggestion={s} />)}
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
-            <div className="mt-6 p-4 border-l-4 border-accent bg-accent/10 rounded-r-lg">
-                <h4 className="font-semibold text-accent-foreground">Risks and Returns Explained</h4>
-                <p className="mt-2 text-sm text-muted-foreground whitespace-pre-wrap">{guidance.riskAndReturnsExplanations}</p>
-            </div>
           </CardContent>
         </Card>
       )}

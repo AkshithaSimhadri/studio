@@ -31,20 +31,22 @@ const FinancialGuidanceInputSchema = z.object({
 });
 export type FinancialGuidanceInput = z.infer<typeof FinancialGuidanceInputSchema>;
 
+const SuggestionSchema = z.object({
+  suggestion: z.string().describe('The specific suggestion or idea.'),
+  riskLevel: z.enum(['Low', 'Medium', 'High']).describe('The estimated risk level.'),
+  potentialReturn: z.string().describe('The potential return or benefit of the suggestion (e.g., interest rate, ROI percentage, outcome).'),
+  explanation: z.string().describe('A brief explanation of why this suggestion is suitable for the user.'),
+});
+
+
 const FinancialGuidanceOutputSchema = z.object({
   loanSuggestions: z
-    .array(z.string())
-    .describe('Tailored suggestions for loans based on the user\'s financial situation and interests.'),
+    .array(SuggestionSchema)
+    .describe('Tailored suggestions for loans.'),
   businessStrategies:
-    z.array(z.string()).describe('Relevant business strategies for the user.'),
+    z.array(SuggestionSchema).describe('Relevant business strategies for the user.'),
   investmentIdeas:
-    z.array(z.string()).describe('Personalized investment ideas for the user.'),
-  riskAndReturnsExplanations:
-    z
-      .string()
-      .describe(
-        'Detailed explanations of the risks and returns associated with each loan, business strategy, and investment idea.'
-      ),
+    z.array(SuggestionSchema).describe('Personalized investment ideas for the user.'),
 });
 export type FinancialGuidanceOutput = z.infer<typeof FinancialGuidanceOutputSchema>;
 
@@ -58,13 +60,20 @@ const financialGuidancePrompt = ai.definePrompt({
   name: 'financialGuidancePrompt',
   input: {schema: FinancialGuidanceInputSchema},
   output: {schema: FinancialGuidanceOutputSchema},
-  prompt: `You are an AI-powered financial advisor. Generate personalized guidance for the user based on their financial data.
+  prompt: `You are an expert AI financial advisor. Your task is to provide personalized, actionable guidance based on the user's situation.
   
   User's Financial Situation: {{{financialSituation}}}
   User's Goals: {{{goals}}}
   User's Interests: {{{interests}}}
 
-  Provide tailored suggestions for loans, business strategies, and investment ideas, along with clear explanations of the risks and potential returns for each.
+  Based on this, generate 2-3 tailored suggestions for each of the following categories: loans, business strategies, and investment ideas.
+  For each suggestion, you MUST provide:
+  1.  A clear, concise 'suggestion'.
+  2.  An estimated 'riskLevel' (Low, Medium, or High).
+  3.  A 'potentialReturn' (e.g., "3-5% APR", "15% ROI annually", "Reduces debt by $200/month").
+  4.  A brief 'explanation' of why this is a good fit for the user, connecting it to their goals and situation.
+
+  Present the output in the required structured format.
   `,
 });
 
