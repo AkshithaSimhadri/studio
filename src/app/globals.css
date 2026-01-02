@@ -64,7 +64,13 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    @apply bg-gradient-to-br from-background to-secondary;
+    @apply text-foreground;
+    @apply bg-gradient-to-br from-background to-secondary/70;
+    background-size: 200% 200%;
+    animation: gradient-shift 15s ease infinite;
+  }
+
+  .dark body {
+    @apply bg-gradient-to-br from-background to-card;
   }
 }
