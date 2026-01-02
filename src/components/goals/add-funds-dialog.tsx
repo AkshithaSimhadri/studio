@@ -42,11 +42,12 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
 
     const goalRef = doc(firestore, 'users', user.uid, 'financial_goals', goal.id);
 
-    // This will decrease the target amount by the fund amount.
-    // We also increment the current amount to track total contributions.
+    // Correctly update both current and target amounts.
+    // - Increment currentAmount by the fund amount (how much you've saved).
+    // - Decrement targetAmount by the fund amount (how much is left to save).
     updateDocumentNonBlocking(goalRef, {
-      targetAmount: increment(-fundAmount),
-      currentAmount: increment(fundAmount)
+      currentAmount: increment(fundAmount),
+      targetAmount: increment(-fundAmount)
     });
 
     toast({
