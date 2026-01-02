@@ -9,7 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, UploadCloud } from 'lucide-react';
-import type { ExtractedTransaction } from '@/ai/flows/extract-transactions-from-pdf';
+import type { ExtractedTransaction } from '@/lib/types';
+import { analyzeTransactions } from '@/app/dashboard/upload/actions';
+
 
 type UploadFormProps = {
   onUploadSuccess: (transactions: ExtractedTransaction[]) => void;
@@ -49,30 +51,28 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
     setLoading(true);
     try {
         let fileContent: string;
-        let body;
+        let fileType: 'pdf' | 'csv';
 
         if (file.type === 'application/pdf') {
             fileContent = await readFileAsDataURI(file);
-            body = { fileDataUri: fileContent, fileType: 'pdf' };
+            fileType = 'pdf';
         } else if (file.type === 'text/csv') {
             fileContent = await readFileAsText(file);
-            body = { fileContent: fileContent, fileType: 'csv' };
+            fileType = 'csv';
         } else {
             throw new Error('Unsupported file type. Please upload a PDF or CSV.');
         }
       
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+      const result = await analyzeTransactions(fileType, fileContent);
 
-      const result = await response.json();
-
-      if (!response.ok) {
+      if ('error' in result) {
         throw new Error(result.error || 'Failed to process file.');
       }
       
+      if (!result.transactions) {
+        throw new Error('No transactions were extracted from the file.');
+      }
+
       onUploadSuccess(result.transactions);
       toast({ title: 'Upload Successful', description: `${result.transactions.length} transactions were extracted from your file.` });
 
