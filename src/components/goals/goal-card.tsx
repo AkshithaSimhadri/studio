@@ -51,12 +51,13 @@ export function GoalCard({ goal }: { goal: FinancialGoal }) {
   const firestore = useFirestore();
   const { toast } = useToast();
   
-  const { progress } = useMemo(() => {
+  const progress = useMemo(() => {
     // The targetAmount is the total goal.
     // Calculate progress as a percentage of the total goal.
     // If the total is 0, consider it 100% complete.
-    const prog = goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 100;
-    return { progress: Math.min(100, prog) }; // Cap progress at 100%
+    if (goal.targetAmount <= 0) return 100;
+    const prog = (goal.currentAmount / goal.targetAmount) * 100;
+    return Math.min(100, prog); // Cap progress at 100%
   }, [goal.currentAmount, goal.targetAmount]);
 
 

@@ -31,11 +31,12 @@ export function AddGoalDialog() {
   const [open, setOpen] = useState(false);
 
   const handleSubmit = async () => {
-    if (!name || !targetAmount || !targetDate || !user || !firestore) {
+    const parsedTarget = parseFloat(targetAmount);
+    if (!name || isNaN(parsedTarget) || parsedTarget <= 0 || !targetDate || !user || !firestore) {
       toast({
         variant: "destructive",
         title: "Validation Error",
-        description: "Please fill out all fields.",
+        description: "Please fill out all fields with valid values.",
       });
       return;
     }
@@ -46,7 +47,7 @@ export function AddGoalDialog() {
     await addDocumentNonBlocking(goalsCol, {
       userId: user.uid,
       name,
-      targetAmount: parseFloat(targetAmount),
+      targetAmount: parsedTarget,
       currentAmount: 0,
       targetDate: new Date(targetDate).toISOString(),
     });
