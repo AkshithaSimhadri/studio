@@ -46,8 +46,8 @@ export default function DashboardLayout({
           <div className="flex flex-col flex-1 bg-secondary">
             <AnnouncementBar />
             <AppHeader />
-            <main className="flex-1 p-4 md:p-6 lg:p-8">
-               <div className="h-full">
+            <main className="flex-1 p-4 md:p-6 lg:p-8 flex flex-col">
+               <div className="h-full flex-1 flex flex-col">
                 {children}
               </div>
             </main>
