@@ -7,7 +7,7 @@ import { Landmark, Instagram, Facebook, MessageCircle } from 'lucide-react';
 export function AppFooter() {
   return (
     <footer className="w-full mt-auto py-4 px-4 md:px-6 border-t bg-footer text-primary-foreground">
-      <div className="container mx-auto flex flex-col md:flex-row items-center justify-center gap-4">
+      <div className="container mx-auto flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Landmark className="h-5 w-5 text-primary-foreground" />
           <span className="font-bold font-headline text-sm">FinanceWise AI</span>
