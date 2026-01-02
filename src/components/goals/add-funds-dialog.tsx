@@ -29,7 +29,7 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
   const [amount, setAmount] = useState('');
   const [open, setOpen] = useState(false);
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const fundAmount = parseFloat(amount);
     if (isNaN(fundAmount) || fundAmount <= 0 || !user || !firestore) {
       toast({
