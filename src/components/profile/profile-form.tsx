@@ -22,7 +22,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -182,4 +182,3 @@ export function ProfileForm() {
     </Form>
   );
 }
-
