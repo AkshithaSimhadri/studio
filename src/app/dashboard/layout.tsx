@@ -52,12 +52,12 @@ export default function DashboardLayout({
                 className="pointer-events-none"
                 data-ai-hint={dashboardBgImage.imageHint}
               />
-              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm"></div>
+              <div className="absolute inset-0 bg-background/80 backdrop-blur-lg"></div>
             </div>
           )}
           <div className="relative z-10 flex flex-1">
             <AppSidebar />
-            <div className="flex flex-col flex-1">
+            <div className="flex flex-col flex-1 bg-secondary/70">
               <AppHeader />
               <main className="flex-1 p-4 md:p-6 lg:p-8">
                 {children}

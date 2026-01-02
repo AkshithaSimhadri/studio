@@ -136,5 +136,3 @@ export function LoginForm({ onEmailLogin, onGoogleLogin, isSubmitting }: LoginFo
     </Form>
   );
 }
-
-    

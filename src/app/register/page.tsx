@@ -48,8 +48,14 @@ export default function RegisterPage() {
 
   return (
     <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2 xl:min-h-screen">
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-12 bg-background/60 backdrop-blur-sm">
         <div className="mx-auto grid w-[350px] gap-6">
+          <div className="grid gap-2 text-center">
+             <Link href="/" className="flex items-center justify-center gap-2 text-primary-foreground mb-4">
+                <Landmark className="h-8 w-8 text-primary" />
+                <span className="text-3xl font-bold font-headline text-foreground">FinanceWise AI</span>
+            </Link>
+          </div>
           <RegisterForm onRegister={handleRegister} isSubmitting={isSubmitting} />
         </div>
       </div>
@@ -58,21 +64,15 @@ export default function RegisterPage() {
           <Image
             src={authBgImage.imageUrl}
             alt={authBgImage.description}
-            width={1200}
-            height={1800}
-            className="h-full w-full object-cover brightness-[0.8]"
+            fill
+            className="h-full w-full object-cover"
             data-ai-hint={authBgImage.imageHint}
           />
         )}
-        <div className="absolute top-0 left-0 right-0 p-8 bg-gradient-to-b from-black/60 to-transparent">
-            <Link href="/" className="flex items-center gap-2 text-primary-foreground">
-                <Landmark className="h-8 w-8 text-primary" />
-                <span className="text-2xl font-bold font-headline text-white">FinanceWise AI</span>
-            </Link>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/60 to-transparent">
-            <div className="text-white">
-                <h2 className="text-3xl font-bold">Take Control of Your Finances</h2>
+        <div className="absolute inset-0 bg-gradient-to-br from-background/20 via-background/50 to-background/90"></div>
+        <div className="absolute bottom-0 left-0 right-0 p-8">
+            <div className="text-white bg-black/40 p-6 rounded-lg backdrop-blur-md">
+                <h2 className="text-4xl font-bold">Take Control of Your Finances</h2>
                 <p className="mt-2 text-lg">Your intelligent partner for smart budgeting and financial success.</p>
             </div>
         </div>
