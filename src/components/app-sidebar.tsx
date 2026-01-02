@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -11,6 +12,7 @@ import {
   AreaChart,
   Lightbulb,
   LogOut,
+  User,
   UserCircle
 } from "lucide-react";
 import {
@@ -25,8 +27,16 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { useSidebar } from "@/components/ui/sidebar";
-import { useUser, useAuth } from "@/firebase";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import { useUser as useAuthUser, useAuth } from "@/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
@@ -41,8 +51,7 @@ const navItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { isMobile } = useSidebar();
-  const { user } = useUser();
+  const { user } = useAuthUser();
   const auth = useAuth();
   const router = useRouter();
 
@@ -83,26 +92,37 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleSignOut} tooltip="Log out">
-                <LogOut />
-                <span>Log out</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        <div className="flex items-center gap-3 p-2 rounded-md border border-border bg-card">
-            <Avatar>
-                <AvatarImage src={user?.photoURL ?? undefined} />
-                <AvatarFallback>
-                    <UserCircle />
-                </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col overflow-hidden">
-                <span className="text-sm font-semibold truncate">{user?.displayName || user?.email}</span>
-                <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+             <div className="flex items-center gap-3 p-2 rounded-md border border-border bg-card hover:bg-accent cursor-pointer transition-colors">
+                <Avatar>
+                    <AvatarImage src={user?.photoURL ?? undefined} />
+                    <AvatarFallback>
+                        <UserCircle />
+                    </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col overflow-hidden">
+                    <span className="text-sm font-semibold truncate">{user?.displayName || user?.email}</span>
+                    <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
+                </div>
             </div>
-        </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56 mb-2" side="top" align="start">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/profile">
+                <User className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </SidebarFooter>
     </Sidebar>
   );
