@@ -11,10 +11,12 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, UploadCloud } from 'lucide-react';
 import type { ExtractedTransaction } from '@/lib/types';
 import { analyzeTransactions } from '@/app/dashboard/upload/actions';
+import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 
 type UploadFormProps = {
-  onUploadSuccess: (transactions: ExtractedTransaction[]) => void;
+  onUploadSuccess: (transactions: ExtractedTransaction[], uploadId: string) => void;
 };
 
 const readFileAsDataURI = (file: File): Promise<string> => {
@@ -36,14 +38,16 @@ const readFileAsText = (file: File): Promise<string> => {
 };
 
 export function UploadForm({ onUploadSuccess }: UploadFormProps) {
-  const { register, handleSubmit, watch } = useForm<{ file: FileList }>();
+  const { register, handleSubmit, watch, reset } = useForm<{ file: FileList }>();
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const watchedFile = watch("file");
+  const { user } = useUser();
+  const firestore = useFirestore();
 
   const onSubmit: SubmitHandler<{ file: FileList }> = async (data) => {
     const file = data.file[0];
-    if (!file) {
+    if (!file || !user || !firestore) {
       toast({ variant: 'destructive', title: 'No file selected', description: 'Please choose a PDF or CSV file to upload.' });
       return;
     }
@@ -56,7 +60,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
         if (file.type === 'application/pdf') {
             fileContent = await readFileAsDataURI(file);
             fileType = 'pdf';
-        } else if (file.type === 'text/csv') {
+        } else if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
             fileContent = await readFileAsText(file);
             fileType = 'csv';
         } else {
@@ -73,8 +77,19 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
         throw new Error('No transactions were extracted from the file.');
       }
 
-      onUploadSuccess(result.transactions);
-      toast({ title: 'Upload Successful', description: `${result.transactions.length} transactions were extracted from your file.` });
+      // Save to history
+      const historyCollection = collection(firestore, 'users', user.uid, 'upload_history');
+      const historyDoc = await addDocumentNonBlocking(historyCollection, {
+        userId: user.uid,
+        fileName: file.name,
+        uploadDate: new Date().toISOString(),
+        fileType: fileType,
+        transactionCount: result.transactions.length,
+      });
+
+      onUploadSuccess(result.transactions, historyDoc?.id || '');
+      toast({ title: 'Upload Successful', description: `${result.transactions.length} transactions were extracted and the upload has been recorded.` });
+      reset();
 
     } catch (error: any) {
       toast({ variant: 'destructive', title: 'Upload Failed', description: error.message });
@@ -113,3 +128,5 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
     </Card>
   );
 }
+
+    

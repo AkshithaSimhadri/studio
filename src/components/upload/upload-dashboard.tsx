@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { UploadForm } from "@/components/upload/upload-form";
 import type { ExtractedTransaction } from "@/lib/types";
 
@@ -9,19 +9,20 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import { OverviewChart } from "@/components/dashboard/overview-chart";
 import { RecentTransactions } from "@/components/dashboard/recent-transactions";
 import type { Expense, Income } from '@/lib/types';
-import { useMemo } from 'react';
 import { Button } from "../ui/button";
+import { UploadHistory } from "./upload-history";
 
 export function UploadDashboard() {
-  const [transactions, setTransactions] = useState<ExtractedTransaction[] | null>(null);
+  const [analyzedTransactions, setAnalyzedTransactions] = useState<ExtractedTransaction[] | null>(null);
+  const [lastUploadId, setLastUploadId] = useState<string | null>(null);
 
   const { totalIncome, totalExpenses, totalBalance, savingsRate, incomes, expenses } = useMemo(() => {
-    if (!transactions) {
+    if (!analyzedTransactions) {
       return { totalIncome: 0, totalExpenses: 0, totalBalance: 0, savingsRate: 0, incomes: [], expenses: [] };
     }
 
-    const incs = transactions.filter(t => t.type === 'income').map(t => ({...t, id: Math.random().toString(), source: t.description } as Income));
-    const exps = transactions.filter(t => t.type === 'expense').map(t => ({...t, id: Math.random().toString() } as Expense));
+    const incs = analyzedTransactions.filter(t => t.type === 'income').map(t => ({...t, id: Math.random().toString(), source: t.description } as Income));
+    const exps = analyzedTransactions.filter(t => t.type === 'expense').map(t => ({...t, id: Math.random().toString() } as Expense));
 
     const income = incs.reduce((sum, item) => sum + item.amount, 0);
     const expense = exps.reduce((sum, item) => sum + item.amount, 0);
@@ -35,13 +36,19 @@ export function UploadDashboard() {
       incomes: incs,
       expenses: exps,
     };
-  }, [transactions]);
+  }, [analyzedTransactions]);
   
   const handleReset = () => {
-    setTransactions(null);
+    setAnalyzedTransactions(null);
+    setLastUploadId(null);
   }
 
-  if (transactions) {
+  const handleSuccess = (transactions: ExtractedTransaction[], uploadId: string) => {
+    setAnalyzedTransactions(transactions);
+    setLastUploadId(uploadId);
+  }
+
+  if (analyzedTransactions) {
     return (
        <div className="flex-1 space-y-4">
         <div className="flex justify-end">
@@ -81,5 +88,12 @@ export function UploadDashboard() {
     )
   }
 
-  return <UploadForm onUploadSuccess={setTransactions} />;
+  return (
+    <div className="space-y-8">
+      <UploadForm onUploadSuccess={handleSuccess} />
+      <UploadHistory newUploadId={lastUploadId} />
+    </div>
+  );
 }
+
+    

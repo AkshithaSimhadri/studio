@@ -319,6 +319,48 @@
         "riskLevel",
         "potentialReturn"
       ]
+    },
+    "UploadHistory": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UploadHistory",
+      "type": "object",
+      "description": "Represents a record of a file upload.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UploadHistory entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N UploadHistory)"
+        },
+        "fileName": {
+          "type": "string",
+          "description": "The name of the uploaded file."
+        },
+        "uploadDate": {
+          "type": "string",
+          "description": "Date and time of the upload.",
+          "format": "date-time"
+        },
+        "fileType": {
+          "type": "string",
+          "enum": ["pdf", "csv"],
+          "description": "The type of the uploaded file."
+        },
+        "transactionCount": {
+          "type": "number",
+          "description": "The number of transactions extracted from the file."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "fileName",
+        "uploadDate",
+        "fileType",
+        "transactionCount"
+      ]
     }
   },
   "auth": {
@@ -485,9 +527,30 @@
             }
           ]
         }
+      },
+      {
+        "path": "/users/{userId}/upload_history/{uploadHistoryId}",
+        "definition": {
+          "entityName": "UploadHistory",
+          "schema": {
+            "$ref": "#/backend/entities/UploadHistory"
+          },
+          "description": "Stores a history of file uploads for a user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user, corresponding to their Firebase Auth UID."
+            },
+            {
+              "name": "uploadHistoryId",
+              "description": "The unique identifier for the upload history record."
+            }
+          ]
+        }
       }
     ],
-    "reasoning": "The Firestore structure is designed to ensure Authorization Independence, DBAC, and support secure list operations (QAPs). User data is stored under `/users/{userId}` for private data ownership. Expenses, Income, Budgets, FinancialGoals, InvestmentSuggestions, LoanSuggestions, and BusinessStrategies are stored as subcollections of the user's document, enabling path-based authorization and clear ownership. Each subcollection inherits the user's ID, which eliminates the need for `get()` calls in security rules, thus achieving Authorization Independence. This design allows for secure and scalable data management. The data segregation enforces a homogeneous security posture, simplifying rules, and the explicit path-based ownership clarifies authorization intent. The use of subcollections creates implicit indexing, which makes queries very fast, also queries can be as complex and as deep as needed."
+    "reasoning": "The Firestore structure is designed to ensure Authorization Independence, DBAC, and support secure list operations (QAPs). User data is stored under `/users/{userId}` for private data ownership. Expenses, Incomes, Budgets, FinancialGoals, InvestmentSuggestions, LoanSuggestions, and BusinessStrategies are stored as subcollections of the user's document, enabling path-based authorization and clear ownership. Each subcollection inherits the user's ID, which eliminates the need for `get()` calls in security rules, thus achieving Authorization Independence. This design allows for secure and scalable data management. The data segregation enforces a homogeneous security posture, simplifying rules, and the explicit path-based ownership clarifies authorization intent. The use of subcollections creates implicit indexing, which makes queries very fast, also queries can be as complex and as deep as needed."
   }
 }
+    
     

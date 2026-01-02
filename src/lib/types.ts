@@ -74,3 +74,14 @@ export const ExtractedTransactionSchema = z.object({
 });
 
 export type ExtractedTransaction = z.infer<typeof ExtractedTransactionSchema>;
+
+export interface UploadHistoryItem {
+  id: string;
+  userId: string;
+  fileName: string;
+  uploadDate: string;
+  fileType: 'pdf' | 'csv';
+  transactionCount: number;
+}
+
+    

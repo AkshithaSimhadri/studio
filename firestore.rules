@@ -227,6 +227,22 @@ service cloud.firestore {
         allow update: if isExistingOwner(userId) && isValidSubcollectionUpdate();
         allow delete: if isExistingOwner(userId);
       }
+
+      /**
+       * @description Secures a user's private upload history.
+       * @path        /users/{userId}/upload_history/{uploadHistoryId}
+       * @allow       (create, get, list, delete) A user can manage their own upload history.
+       * @deny        (get, list, create, delete) A user cannot access another user's upload history.
+       * @principle   Restricts access to a user's own data tree using path-based ownership.
+       */
+      match /upload_history/{uploadHistoryId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidSubcollectionCreate(userId);
+        allow update: if false; // Upload history should be immutable
+        allow delete: if isExistingOwner(userId);
+      }
     }
   }
 }
+    
