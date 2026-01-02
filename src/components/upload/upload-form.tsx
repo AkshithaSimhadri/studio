@@ -65,11 +65,11 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
       
       const result = await analyzeTransactions(fileType, fileContent);
 
-      if ('error' in result) {
+      if (result && 'error' in result) {
         throw new Error(result.error || 'Failed to process file.');
       }
       
-      if (!result.transactions) {
+      if (!result || !result.transactions) {
         throw new Error('No transactions were extracted from the file.');
       }
 
