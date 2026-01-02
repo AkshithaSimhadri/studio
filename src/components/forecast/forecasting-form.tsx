@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -142,7 +143,7 @@ export function ForecastingForm() {
             <Card>
                 <CardHeader>
                     <CardTitle>AI-Powered Insights</CardTitle>
-                </Header>
+                </CardHeader>
                 <CardContent>
                     <p className="whitespace-pre-wrap">{forecast.insights}</p>
                 </CardContent>
