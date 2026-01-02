@@ -8,9 +8,9 @@ export default function PrivacyPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <header className="px-4 lg:px-6 h-14 flex items-center bg-background border-b">
-        <Link href="/" className="flex items-center justify-center">
+        <Link href="/" className="flex items-center justify-center gap-2">
           <Landmark className="h-6 w-6 text-primary" />
-          <span className="sr-only">FinanceWise AI</span>
+          <span className="font-bold text-lg">FinanceWise AI</span>
         </Link>
          <nav className="ml-auto flex gap-4 sm:gap-6">
           <Link href="/#features" className="text-sm font-medium hover:underline underline-offset-4">
@@ -25,8 +25,8 @@ export default function PrivacyPage() {
             </Link>
           </Button>
            <Button asChild>
-            <Link href="/dashboard">
-              Dashboard
+            <Link href="/login">
+              Get Started
             </Link>
           </Button>
         </nav>
