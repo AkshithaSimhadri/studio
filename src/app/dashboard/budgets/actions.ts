@@ -10,15 +10,19 @@ import {
 } from "@/ai/flows/budgeting-recommendations.types";
 import type { Category, Expense, Income } from "@/lib/types";
 import { initializeAdminApp } from "@/firebase/admin";
+import { headers } from "next/headers";
 
 const needsCategories: Category[] = ["Groceries", "Bills & Utilities", "Transport", "Health", "Rent"];
 const wantsCategories: Category[] = ["Food", "Shopping", "Entertainment", "Travel"];
 
-async function getUserId(idToken: string) {
-    const { auth } = await initializeAdminApp();
-    if (!idToken) {
+async function getUserId() {
+    const headersList = headers();
+    const authorization = headersList.get('Authorization');
+    if (!authorization?.startsWith('Bearer ')) {
         throw new Error('Unauthorized');
     }
+    const idToken = authorization.split('Bearer ')[1];
+    const { auth } = await initializeAdminApp();
     const decodedToken = await auth.verifyIdToken(idToken);
     return decodedToken.uid;
 }
@@ -35,9 +39,9 @@ async function getUserData(userId: string) {
 }
 
 
-export async function getBudgetingRecommendations(idToken: string): Promise<FullBudgetingRecommendationsOutput | { error: string }> {
+export async function getBudgetingRecommendations(): Promise<FullBudgetingRecommendationsOutput | { error: string }> {
   try {
-    const userId = await getUserId(idToken);
+    const userId = await getUserId();
 
     const { incomes, expenses } = await getUserData(userId);
 
@@ -112,7 +116,7 @@ export async function getBudgetingRecommendations(idToken: string): Promise<Full
 
   } catch (e: any) {
     console.error("Error in getBudgetingRecommendations:", e);
-    if (e.code === 'auth/id-token-expired' || e.message === 'Unauthorized' || e.code === 'auth/argument-error') {
+    if (e.message === 'Unauthorized' || (e.code && e.code.startsWith('auth/'))) {
         return { error: "Authentication error. Please log in again." };
     }
     return { error: "Failed to get budgeting recommendations." };
