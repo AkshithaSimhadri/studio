@@ -42,7 +42,8 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
 
     const goalRef = doc(firestore, 'users', user.uid, 'financial_goals', goal.id);
 
-    // Only increment the amount saved (currentAmount). The targetAmount remains fixed.
+    // This is a non-blocking "optimistic" update.
+    // The useCollection hook on the goals page will see the change in real-time.
     updateDocumentNonBlocking(goalRef, {
       currentAmount: increment(fundAmount),
     });
