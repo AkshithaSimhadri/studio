@@ -1,7 +1,11 @@
 "use server";
 
-import { 
-  type FullBudgetingRecommendationsOutput
+import {
+  budgetingRecommendations,
+  type BudgetingRecommendationsInput,
+} from "@/ai/flows/budgeting-recommendations.ts";
+import {
+  type FullBudgetingRecommendationsOutput,
 } from "@/ai/flows/budgeting-recommendations.types";
 import type { Category, Expense, Income } from "@/lib/types";
 import { initializeAdminApp } from "@/firebase/admin";
@@ -10,14 +14,6 @@ import { headers } from "next/headers";
 // Categorize expenses into Needs, Wants, and Savings/Other
 const needsCategories: Category[] = ["Groceries", "Bills & Utilities", "Transport", "Health", "Rent"];
 const wantsCategories: Category[] = ["Food", "Shopping", "Entertainment", "Travel"];
-
-const defaultSavingsTips = [
-  "Create a detailed monthly budget and stick to it.",
-  "Review your subscriptions and cancel any you don't use.",
-  "Try cooking more meals at home instead of eating out.",
-  "Set up automatic transfers to your savings account each payday.",
-  "Look for generic brands to save money on groceries.",
-];
 
 async function getUserId() {
     const headersList = headers();
@@ -50,7 +46,27 @@ export async function getBudgetingRecommendations(): Promise<FullBudgetingRecomm
 
     const totalIncome = incomes.reduce((sum, t) => sum + t.amount, 0);
 
-    // Calculate budget recommendations in code (logical task)
+    const expenseByCategory = expenses.reduce((acc, expense) => {
+        if (!acc[expense.category]) {
+            acc[expense.category] = 0;
+        }
+        acc[expense.category] += expense.amount;
+        return acc;
+    }, {} as Record<Category, number>);
+
+    // Prepare input for AI
+    const aiInput: BudgetingRecommendationsInput = {
+      income: totalIncome,
+      expenses: Object.entries(expenseByCategory).map(([category, amount]) => ({
+        category: category,
+        amount: amount,
+      })),
+    };
+
+    // 1. Call AI for creative task (savings tips)
+    const aiOutput = await budgetingRecommendations(aiInput);
+
+    // 2. Calculate budget recommendations in code (logical task)
     const needsSpend = expenses
         .filter(e => needsCategories.includes(e.category))
         .reduce((sum, e) => sum + e.amount, 0);
@@ -82,10 +98,10 @@ export async function getBudgetingRecommendations(): Promise<FullBudgetingRecomm
         }
     ];
 
-    // Combine results
+    // 3. Combine results
     const finalOutput: FullBudgetingRecommendationsOutput = {
       budgetRecommendations,
-      savingsTips: defaultSavingsTips,
+      savingsTips: aiOutput.savingsTips,
     };
     
     return finalOutput;

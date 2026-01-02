@@ -6,27 +6,46 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PiggyBank, Lightbulb, Loader2 } from "lucide-react";
 import type { FullBudgetingRecommendationsOutput } from "@/ai/flows/budgeting-recommendations.types";
-import { getBudgetingRecommendations } from "@/app/dashboard/budgets/actions";
+import { useAuth } from "@/firebase";
 
 export function BudgetingForm() {
   const [recommendations, setRecommendations] = useState<FullBudgetingRecommendationsOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const auth = useAuth();
 
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
     setRecommendations(null);
 
+    const user = auth.currentUser;
+    if (!user) {
+      setError("You must be logged in to get recommendations.");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const result = await getBudgetingRecommendations();
-      if ('error' in result) {
-        throw new Error(result.error);
+      const idToken = await user.getIdToken();
+      const response = await fetch('/api/budgets', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || "An unexpected error occurred.");
       }
+      
       setRecommendations(result);
 
     } catch (e: any) {
-      setError(e.message || "An unexpected error occurred.");
+      setError(e.message);
     } finally {
       setLoading(false);
     }
@@ -38,7 +57,7 @@ export function BudgetingForm() {
         <CardHeader>
           <CardTitle className="font-headline">Get Your Personalized Budget Plan</CardTitle>
           <CardDescription>
-            Let us analyze your spending and create a budget to help you reach your goals faster.
+            Let our AI analyze your spending and create a budget to help you reach your goals faster.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -89,7 +108,7 @@ export function BudgetingForm() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Lightbulb className="text-accent" /> Savings Tips
+                <Lightbulb className="text-accent" /> AI Savings Tips
               </CardTitle>
             </CardHeader>
             <CardContent>
