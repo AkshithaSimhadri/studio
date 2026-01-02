@@ -138,9 +138,10 @@ export function BudgetingForm() {
                 <AccordionItem value="item-1" className="border-none">
                     <AccordionTrigger className="text-sm p-0 hover:no-underline">What are needs, wants, and savings?</AccordionTrigger>
                     <AccordionContent className="text-muted-foreground text-sm space-y-2 pt-2">
-                        <p><strong className="text-foreground">Needs:</strong> These are your essential expenses required for survival, like housing, utilities, groceries, and healthcare.</p>
-                        <p><strong className="text-foreground">Wants:</strong> These are non-essential expenses that improve your quality of life, such as dining out, shopping, hobbies, and entertainment.</p>
-                        <p><strong className="text-foreground">Savings:</strong> This includes paying off debt, investing for the future, and building an emergency fund.</p>
+                        <p><strong className="text-foreground">Needs:</strong> Essentials for survival. In this app, these include: <span className="italic">{needsCategories.join(', ')}.</span></p>
+                        <p><strong className="text-foreground">Wants:</strong> Non-essential expenses that improve your quality of life. In this app, these include: <span className="italic">{wantsCategories.join(', ')}.</span></p>
+                        <p><strong className="text-foreground">Savings:</strong> Money for your future, like paying off debt, investing, or building an emergency fund.</p>
+                        <p><strong className="text-foreground">Other:</strong> Any expenses not categorized as needs or wants will fall here.</p>
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
