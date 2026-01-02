@@ -6,23 +6,48 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PiggyBank, Lightbulb, Loader2 } from "lucide-react";
 import type { FullBudgetingRecommendationsOutput } from "@/ai/flows/budgeting-recommendations.types";
 import { getBudgetingRecommendations } from "@/app/dashboard/budgets/actions";
+import { useAuth } from "@/firebase";
 
 export function BudgetingForm() {
   const [recommendations, setRecommendations] = useState<FullBudgetingRecommendationsOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const auth = useAuth();
 
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
     setRecommendations(null);
-    const result = await getBudgetingRecommendations();
-    if ("error" in result) {
-      setError(result.error);
-    } else {
-      setRecommendations(result);
+
+    const user = auth.currentUser;
+    if (!user) {
+      setError("You must be logged in to get recommendations.");
+      setLoading(false);
+      return;
     }
-    setLoading(false);
+
+    try {
+      const idToken = await user.getIdToken();
+      const response = await fetch('/api/budgets', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+        }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch recommendations');
+      }
+
+      const result = await response.json();
+      setRecommendations(result);
+
+    } catch (e: any) {
+      setError(e.message || "An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

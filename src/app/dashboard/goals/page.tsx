@@ -6,6 +6,23 @@ import type { FinancialGoal } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { collection } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Target } from 'lucide-react';
+
+function EmptyState() {
+  return (
+    <div className="text-center py-12 px-6 rounded-lg border-2 border-dashed">
+      <Target className="mx-auto h-12 w-12 text-muted-foreground" />
+      <h2 className="mt-4 text-xl font-semibold">No Goals Yet</h2>
+      <p className="mt-2 text-muted-foreground">
+        It looks like you haven't set any financial goals. Get started by adding one.
+      </p>
+      <div className="mt-6">
+        <AddGoalDialog />
+      </div>
+    </div>
+  );
+}
 
 export default function GoalsPage() {
   const { user } = useUser();
@@ -36,12 +53,14 @@ export default function GoalsPage() {
           <Skeleton className="h-48 w-full" />
           <Skeleton className="h-48 w-full" />
         </div>
-      ) : (
+      ) : goals && goals.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {goals?.map((goal) => (
+          {goals.map((goal) => (
             <GoalCard key={goal.id} goal={goal} />
           ))}
         </div>
+      ) : (
+        <EmptyState />
       )}
     </div>
   );

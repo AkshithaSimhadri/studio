@@ -5,6 +5,22 @@ import { AddTransactionSheet } from '@/components/transactions/add-transaction-s
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import type { Expense, Income } from '@/lib/types';
+import { ArrowRightLeft } from 'lucide-react';
+
+function EmptyState() {
+  return (
+    <div className="text-center py-12 px-6 rounded-lg border-2 border-dashed">
+        <ArrowRightLeft className="mx-auto h-12 w-12 text-muted-foreground" />
+        <h2 className="mt-4 text-xl font-semibold">No Transactions Found</h2>
+        <p className="mt-2 text-muted-foreground">
+            Get started by adding your first income or expense.
+        </p>
+        <div className="mt-6">
+            <AddTransactionSheet />
+        </div>
+    </div>
+  );
+}
 
 export default function TransactionsPage() {
   const { user } = useUser();
@@ -28,6 +44,7 @@ export default function TransactionsPage() {
     ...(expenses || []).map(item => ({ ...item, type: 'expense' as const })),
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
+  const isLoading = isLoadingExpenses || isLoadingIncomes;
 
   return (
     <div className="space-y-6">
@@ -42,7 +59,11 @@ export default function TransactionsPage() {
         </div>
         <AddTransactionSheet />
       </div>
-      <TransactionsTable transactions={transactions} isLoading={isLoadingExpenses || isLoadingIncomes} />
+      {transactions.length > 0 || isLoading ? (
+        <TransactionsTable transactions={transactions} isLoading={isLoading} />
+      ) : (
+        <EmptyState />
+      )}
     </div>
   );
 }
