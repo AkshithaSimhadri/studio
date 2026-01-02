@@ -41,15 +41,18 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
 
     const goalRef = doc(firestore, 'users', user.uid, 'financial_goals', goal.id);
 
+    // This will decrease the target amount by the fund amount.
+    // We also increment the current amount to track total contributions.
     await updateDocumentNonBlocking(goalRef, {
-      currentAmount: increment(fundAmount),
+      targetAmount: increment(-fundAmount),
+      currentAmount: increment(fundAmount)
     });
 
     toast({
       title: 'Funds Added',
       description: `$${fundAmount.toFixed(
         2
-      )} has been added to your "${name}" goal.`,
+      )} has been added to your "${goal.name}" goal.`,
     });
 
     // Reset form and close dialog
@@ -71,7 +74,7 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
           <DialogDescription>
             Your current progress is $
             {goal.currentAmount.toLocaleString()} / $
-            {goal.targetAmount.toLocaleString()}.
+            {(goal.targetAmount + goal.currentAmount).toLocaleString()}.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">

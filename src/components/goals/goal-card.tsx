@@ -22,7 +22,10 @@ type DeadlineInfo = {
 
 export function GoalCard({ goal }: { goal: FinancialGoal }) {
   const [deadlineInfo, setDeadlineInfo] = useState<DeadlineInfo | null>(null);
-  const progress = (goal.currentAmount / goal.targetAmount) * 100;
+
+  // The total amount is the remaining target plus what's already been contributed.
+  const totalAmount = goal.targetAmount + goal.currentAmount;
+  const progress = totalAmount > 0 ? (goal.currentAmount / totalAmount) * 100 : 100;
 
   useEffect(() => {
     const deadline = parseISO(goal.targetDate);
@@ -57,7 +60,7 @@ export function GoalCard({ goal }: { goal: FinancialGoal }) {
           <span className="font-bold text-foreground">
             ${goal.currentAmount.toLocaleString()}
           </span>{' '}
-          / ${goal.targetAmount.toLocaleString()}
+          / ${totalAmount.toLocaleString()}
         </p>
       </CardContent>
       <CardFooter className="flex justify-between">
