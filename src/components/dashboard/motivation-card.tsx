@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -22,24 +23,24 @@ export function MotivationCard() {
   }, []);
 
   return (
-    <Card>
+    <Card className="bg-gradient-to-r from-primary via-accent to-fuchsia-500 bg-[length:200%_200%] animate-gradient-shift">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <BrainCircuit className="text-primary" /> Daily Motivation
+        <CardTitle className="flex items-center gap-2 text-primary-foreground">
+          <BrainCircuit /> Daily Motivation
         </CardTitle>
       </CardHeader>
       <CardContent>
         {quote ? (
           <figure>
-            <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground">
+            <blockquote className="border-l-4 border-primary-foreground/50 pl-4 italic text-primary-foreground/90">
               "{quote.text}"
             </blockquote>
-            <figcaption className="mt-2 text-right text-sm font-semibold">
+            <figcaption className="mt-2 text-right text-sm font-semibold text-primary-foreground">
               - {quote.author}
             </figcaption>
           </figure>
         ) : (
-          <p>Loading your daily dose of motivation...</p>
+          <p className="text-primary-foreground">Loading your daily dose of motivation...</p>
         )}
       </CardContent>
     </Card>
