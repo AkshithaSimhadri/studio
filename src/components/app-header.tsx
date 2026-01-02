@@ -1,9 +1,9 @@
+
 'use client';
 
 import { useAuth } from '@/firebase';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { PanelLeft } from 'lucide-react';
-import { headers } from 'next/headers';
 import { useEffect } from 'react';
 
 // This is a client component, but we can't use `headers()` directly here.
