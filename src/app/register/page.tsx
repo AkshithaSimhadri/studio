@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Landmark } from "lucide-react";
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -33,6 +33,11 @@ export default function RegisterPage() {
     const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
     const newUser = userCredential.user;
 
+    // Update auth profile
+    await updateProfile(newUser, {
+        displayName: `${data.firstName} ${data.lastName}`
+    });
+
     // Create user profile in Firestore
     const userRef = doc(firestore, 'users', newUser.uid);
     await setDoc(userRef, {
@@ -41,6 +46,15 @@ export default function RegisterPage() {
       lastName: data.lastName,
       email: data.email,
       registrationDate: new Date().toISOString(),
+      phone: '',
+      dob: '',
+      address: {
+        street: '',
+        city: '',
+        state: '',
+        zip: '',
+      },
+      bio: ''
     });
     
     // Let the useEffect handle the redirect

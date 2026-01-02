@@ -1,6 +1,7 @@
 
 
 
+
 // Base type for a transaction-like object
 interface TransactionLike {
   id: string;
@@ -44,6 +45,15 @@ export type UserProfile = {
   lastName: string;
   email: string;
   registrationDate: string;
+  phone?: string;
+  dob?: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+  };
+  bio?: string;
 };
 
 export const categories = [

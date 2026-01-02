@@ -12,6 +12,15 @@ import { initializeAdminApp } from '@/firebase/admin';
 type UpdateProfileData = {
   firstName: string;
   lastName: string;
+  phone?: string;
+  dob?: string;
+  bio?: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+  };
 };
 
 export async function updateUserProfile(
@@ -23,19 +32,21 @@ export async function updateUserProfile(
 
     const userRef = firestore.collection('users').doc(userId);
 
-    // Update Firestore document
-    await userRef.update({
-      firstName: data.firstName,
-      lastName: data.lastName,
-    });
+    // Filter out undefined values
+    const updateData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
 
-    // Update Firebase Auth display name
+    // Update Firestore document
+    await userRef.update(updateData);
+
+    // Update Firebase Auth display name and phone number
     await auth.updateUser(userId, {
       displayName: `${data.firstName} ${data.lastName}`,
+      phoneNumber: data.phone,
     });
 
     // Revalidate the path to ensure the UI updates with the new name
     revalidatePath('/dashboard', 'layout');
+    revalidatePath('/dashboard/profile');
 
     return { success: true };
   } catch (error: any) {

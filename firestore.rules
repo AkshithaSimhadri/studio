@@ -64,15 +64,35 @@ service cloud.firestore {
      * This enforces relational integrity at the point of creation.
      */
     function isValidUserProfileCreate(userId) {
-      return request.resource.data.id == userId;
+      let data = request.resource.data;
+      return data.id == userId
+          && data.firstName is string && data.firstName.size() > 0
+          && data.lastName is string && data.lastName.size() > 0
+          && data.email is string && data.email.matches('.+@.+\\..+')
+          && data.registrationDate is string;
     }
 
     /**
-     * Validates that the 'id' field of a UserProfile is immutable on update.
-     * Prevents re-assigning a user profile to a different user ID.
+     * Validates that the 'id' and other core fields of a UserProfile are immutable on update.
      */
-    function isValidUserProfileUpdate() {
-      return request.resource.data.id == resource.data.id;
+    function isValidUserProfileUpdate(userId) {
+       let data = request.resource.data;
+       return isOwner(userId)
+          && data.id == resource.data.id
+          && data.email == resource.data.email
+          && data.registrationDate == resource.data.registrationDate
+          && data.firstName is string && data.firstName.size() > 0
+          && data.lastName is string && data.lastName.size() > 0
+          && (data.phone == null || (data.phone is string && data.phone.size() < 20))
+          && (data.dob == null || (data.dob is string && data.dob.matches('^\\d{4}-\\d{2}-\\d{2}$')))
+          && (data.bio == null || (data.bio is string && data.bio.size() < 500))
+          && (data.address == null || (
+              data.address is map
+              && (data.address.street == null || data.address.street is string)
+              && (data.address.city == null || data.address.city is string)
+              && (data.address.state == null || data.address.state is string)
+              && (data.address.zip == null || data.address.zip is string)
+            ));
     }
 
     /**
@@ -109,7 +129,7 @@ service cloud.firestore {
       allow get: if isOwner(userId);
       allow list: if false;
       allow create: if isOwner(userId) && isValidUserProfileCreate(userId);
-      allow update: if isExistingOwner(userId) && isValidUserProfileUpdate();
+      allow update: if isExistingOwner(userId) && isValidUserProfileUpdate(userId);
       allow delete: if isExistingOwner(userId);
 
       // =====================================================================

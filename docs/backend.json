@@ -27,6 +27,29 @@
           "type": "string",
           "description": "Date and time the user registered.",
           "format": "date-time"
+        },
+        "phone": {
+          "type": "string",
+          "description": "User's phone number."
+        },
+        "dob": {
+          "type": "string",
+          "description": "User's date of birth.",
+          "format": "date"
+        },
+        "address": {
+          "type": "object",
+          "description": "User's physical address.",
+          "properties": {
+            "street": { "type": "string" },
+            "city": { "type": "string" },
+            "state": { "type": "string" },
+            "zip": { "type": "string" }
+          }
+        },
+        "bio": {
+            "type": "string",
+            "description": "A short bio or financial summary for the user."
         }
       },
       "required": [

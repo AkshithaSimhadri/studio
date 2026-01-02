@@ -29,11 +29,21 @@ import { useToast } from '@/hooks/use-toast';
 import { updateUserProfile } from '@/app/dashboard/profile/actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { UserProfile } from '@/lib/types';
+import { Textarea } from '../ui/textarea';
 
 const profileSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
   email: z.string().email(),
+  phone: z.string().optional(),
+  dob: z.string().optional(),
+  bio: z.string().optional(),
+  address: z.object({
+    street: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    zip: z.string().optional(),
+  }).optional(),
 });
 
 type ProfileSchema = z.infer<typeof profileSchema>;
@@ -56,15 +66,33 @@ export function ProfileForm() {
       firstName: '',
       lastName: '',
       email: '',
+      phone: '',
+      dob: '',
+      bio: '',
+      address: {
+        street: '',
+        city: '',
+        state: '',
+        zip: '',
+      }
     },
   });
 
   useEffect(() => {
     if (userProfile) {
       form.reset({
-        firstName: userProfile.firstName,
-        lastName: userProfile.lastName,
-        email: userProfile.email,
+        firstName: userProfile.firstName || '',
+        lastName: userProfile.lastName || '',
+        email: userProfile.email || '',
+        phone: userProfile.phone || '',
+        dob: userProfile.dob ? userProfile.dob.split('T')[0] : '', // Format for date input
+        bio: userProfile.bio || '',
+        address: {
+            street: userProfile.address?.street || '',
+            city: userProfile.address?.city || '',
+            state: userProfile.address?.state || '',
+            zip: userProfile.address?.zip || '',
+        }
       });
     }
   }, [userProfile, form]);
@@ -72,10 +100,7 @@ export function ProfileForm() {
   const onSubmit: SubmitHandler<ProfileSchema> = async (data) => {
     if (!user) return;
 
-    const result = await updateUserProfile(user.uid, {
-        firstName: data.firstName,
-        lastName: data.lastName,
-    });
+    const result = await updateUserProfile(user.uid, data);
 
     if (result.success) {
       toast({
@@ -158,19 +183,121 @@ export function ProfileForm() {
                 )}
                 />
             </div>
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input {...field} readOnly disabled />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+             <div className="grid md:grid-cols-2 gap-4">
+                <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                            <Input {...field} readOnly disabled />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                            <Input placeholder="(123) 456-7890" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+             </div>
+             <div className="grid md:grid-cols-2 gap-4">
+                <FormField
+                    control={form.control}
+                    name="dob"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Date of Birth</FormLabel>
+                        <FormControl>
+                            <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+             </div>
+             <FormField
+                control={form.control}
+                name="bio"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Bio</FormLabel>
+                    <FormControl>
+                        <Textarea placeholder="Tell us a little bit about your financial goals." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+              />
+            <div className="space-y-2">
+                <FormLabel>Address</FormLabel>
+                <div className="grid md:grid-cols-2 gap-4">
+                     <FormField
+                        control={form.control}
+                        name="address.street"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel className="font-normal text-muted-foreground">Street</FormLabel>
+                            <FormControl>
+                                <Input placeholder="123 Main St" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="address.city"
+                        render={({ field }) => (
+                            <FormItem>
+                             <FormLabel className="font-normal text-muted-foreground">City</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Anytown" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+                 <div className="grid md:grid-cols-2 gap-4">
+                     <FormField
+                        control={form.control}
+                        name="address.state"
+                        render={({ field }) => (
+                            <FormItem>
+                             <FormLabel className="font-normal text-muted-foreground">State</FormLabel>
+                            <FormControl>
+                                <Input placeholder="CA" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="address.zip"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel className="font-normal text-muted-foreground">Zip Code</FormLabel>
+                            <FormControl>
+                                <Input placeholder="12345" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+            </div>
           </CardContent>
           <CardFooter className="border-t px-6 py-4">
             <Button type="submit" disabled={form.formState.isSubmitting}>
