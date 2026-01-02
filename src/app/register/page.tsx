@@ -60,7 +60,7 @@ export default function RegisterPage() {
             alt={authBgImage.description}
             width={1200}
             height={1800}
-            className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+            className="h-full w-full object-cover brightness-[0.8]"
             data-ai-hint={authBgImage.imageHint}
           />
         )}
@@ -80,5 +80,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
-    
