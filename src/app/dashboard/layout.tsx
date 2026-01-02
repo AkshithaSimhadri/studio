@@ -8,6 +8,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
+import { AnnouncementBar } from '@/components/announcement-bar';
 
 export default function DashboardLayout({
   children,
@@ -42,6 +43,7 @@ export default function DashboardLayout({
         <div className="flex min-h-screen w-full">
           <AppSidebar />
           <div className="flex flex-col flex-1 bg-secondary">
+            <AnnouncementBar />
             <AppHeader />
             <main className="flex-1 p-4 md:p-6 lg:p-8">
                <div className="h-full">
