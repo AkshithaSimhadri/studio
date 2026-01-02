@@ -6,7 +6,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 let app: App;
 
 // The project ID for your Firebase project.
-const FIREBASE_PROJECT_ID = 'studio-9869068542-4222c';
+const FIREBASE_PROJECT_ID = 'monospace-6';
 
 if (getApps().length === 0) {
     // Explicitly initialize the Admin SDK with the correct project ID.
