@@ -8,11 +8,19 @@ export type Transaction = {
 };
 
 export type Goal = {
-  id: string;
+  id:string;
   name: string;
   targetAmount: number;
   currentAmount: number;
   deadline: string;
+};
+
+export type UserProfile = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  registrationDate: string;
 };
 
 export const categories = [

@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -20,29 +19,77 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast";
-import { useUser } from "@/context/user-context";
-import { useState } from "react";
+import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
+import { useState, useEffect } from "react";
+import { doc, setDoc } from "firebase/firestore";
+import { Skeleton } from "@/components/ui/skeleton";
+import { updateProfile } from "firebase/auth";
+import { type UserProfile } from "@/lib/types";
 
 export default function SettingsPage() {
-  const { user, setUser } = useUser();
-  const [name, setName] = useState(user.name);
-  const [email, setEmail] = useState(user.email);
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
+
+  const userDocRef = useMemoFirebase(
+    () => (user ? doc(firestore, "users", user.uid) : null),
+    [user, firestore]
+  );
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userDocRef);
+
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
   
   const [theme, setTheme] = useState("light");
   const [currency, setCurrency] = useState("usd");
 
-  const { toast } = useToast();
+  useEffect(() => {
+    if (userProfile) {
+      setFirstName(userProfile.firstName);
+      setLastName(userProfile.lastName);
+    }
+  }, [userProfile]);
 
-  const handleSaveProfile = () => {
-    setUser({ name, email });
-    toast({
-      title: "Profile Saved",
-      description: "Your profile information has been updated.",
-    });
+  const handleSaveProfile = async () => {
+    if (!user || !userDocRef) {
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "You must be logged in to save your profile.",
+        });
+        return;
+    }
+    setIsSaving(true);
+    try {
+        const updatedProfile = {
+            firstName,
+            lastName,
+        };
+        // Update Firestore document
+        await setDoc(userDocRef, updatedProfile, { merge: true });
+
+        // Update Firebase Auth profile
+        await updateProfile(user, {
+            displayName: `${firstName} ${lastName}`.trim(),
+        });
+
+        toast({
+            title: "Profile Saved",
+            description: "Your profile information has been updated.",
+        });
+    } catch (error: any) {
+        toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description: error.message || "Could not save profile.",
+        });
+    } finally {
+        setIsSaving(false);
+    }
   };
   
   const handleSavePreferences = () => {
-    // In a real app, you'd save these preferences to a backend or localStorage
     toast({
       title: "Preferences Saved",
       description: "Your preferences have been updated.",
@@ -67,17 +114,40 @@ export default function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-            </div>
+            {isProfileLoading ? (
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                     <div className="space-y-2">
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                </div>
+            ) : (
+                <>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="firstName">First Name</Label>
+                        <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="lastName">Last Name</Label>
+                        <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                    </div>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" type="email" value={user?.email || ''} readOnly disabled />
+                </div>
+                </>
+            )}
           </CardContent>
           <CardFooter>
-            <Button onClick={handleSaveProfile}>Save Profile</Button>
+            <Button onClick={handleSaveProfile} disabled={isProfileLoading || isSaving}>
+              {isSaving ? 'Saving...' : 'Save Profile'}
+            </Button>
           </CardFooter>
         </Card>
 
@@ -91,7 +161,7 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
              <div className="space-y-2">
               <Label htmlFor="theme">Theme</Label>
-              <Select value={theme} onValueChange={setTheme}>
+              <Select value={theme} onValueChange={(value) => setTheme(value)}>
                 <SelectTrigger id="theme">
                   <SelectValue placeholder="Select theme" />
                 </SelectTrigger>
@@ -104,7 +174,7 @@ export default function SettingsPage() {
             </div>
              <div className="space-y-2">
               <Label htmlFor="currency">Currency</Label>
-              <Select value={currency} onValueChange={setCurrency}>
+              <Select value={currency} onValueChange={(value) => setCurrency(value)}>
                 <SelectTrigger id="currency">
                   <SelectValue placeholder="Select currency" />
                 </SelectTrigger>

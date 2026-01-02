@@ -7,7 +7,6 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { PanelLeft } from "lucide-react";
-import { UserProvider } from "@/context/user-context";
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function DashboardLayout({
@@ -39,7 +38,6 @@ export default function DashboardLayout({
   }
 
   return (
-    <UserProvider>
       <SidebarProvider>
         <div className="flex min-h-screen w-full">
           <AppSidebar />
@@ -61,8 +59,5 @@ export default function DashboardLayout({
           </div>
         </div>
       </SidebarProvider>
-    </UserProvider>
   );
 }
-
-    
