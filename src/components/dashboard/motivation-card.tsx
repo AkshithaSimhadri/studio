@@ -23,26 +23,31 @@ export function MotivationCard() {
   }, []);
 
   return (
-    <Card className="bg-gradient-to-r from-primary via-accent to-fuchsia-500 bg-[length:200%_200%] animate-gradient-shift">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-primary-foreground">
-          <BrainCircuit /> Daily Motivation
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {quote ? (
-          <figure>
-            <blockquote className="border-l-4 border-primary-foreground/50 pl-4 italic text-primary-foreground/90">
-              "{quote.text}"
-            </blockquote>
-            <figcaption className="mt-2 text-right text-sm font-semibold text-primary-foreground">
-              - {quote.author}
-            </figcaption>
-          </figure>
-        ) : (
-          <p className="text-primary-foreground">Loading your daily dose of motivation...</p>
-        )}
-      </CardContent>
-    </Card>
+    <div className="relative group overflow-hidden rounded-lg">
+      <div
+        className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-border-spin"
+      ></div>
+      <Card className="relative bg-gradient-to-r from-primary via-accent to-fuchsia-500 bg-[length:200%_200%] animate-gradient-shift">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-primary-foreground">
+            <BrainCircuit /> Daily Motivation
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {quote ? (
+            <figure>
+              <blockquote className="border-l-4 border-primary-foreground/50 pl-4 italic text-primary-foreground/90">
+                "{quote.text}"
+              </blockquote>
+              <figcaption className="mt-2 text-right text-sm font-semibold text-primary-foreground">
+                - {quote.author}
+              </figcaption>
+            </figure>
+          ) : (
+            <p className="text-primary-foreground">Loading your daily dose of motivation...</p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
