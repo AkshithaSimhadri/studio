@@ -1,3 +1,4 @@
+
 'use client';
 
 import { DollarSign, TrendingUp, TrendingDown, Landmark } from "lucide-react";
@@ -91,7 +92,7 @@ export default function DashboardPage() {
                   <RecentTransactions expenses={expenses || []} incomes={incomes || []} isLoading={isLoadingStats} />
               </div>
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4">
               <MotivationCard />
           </div>
       </div>
