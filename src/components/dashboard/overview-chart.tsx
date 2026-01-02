@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { Expense, Income } from "@/lib/types";
 import { useMemo } from "react";
 import { Skeleton } from "../ui/skeleton";
+import { format } from 'date-fns';
 
 const chartConfig = {
   income: {
@@ -29,38 +30,55 @@ export function OverviewChart({ incomes, expenses, isLoading }: OverviewChartPro
 
   const chartData = useMemo(() => {
     const dataByMonth: { [key: string]: { income: number; expenses: number } } = {};
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-    // Initialize last 6 months in dataByMonth
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date();
-      d.setMonth(d.getMonth() - i);
-      const monthName = months[d.getMonth()];
-      dataByMonth[monthName] = { income: 0, expenses: 0 };
-    }
 
     const processTransactions = (transactions: (Income | Expense)[], type: 'income' | 'expense') => {
       transactions.forEach(t => {
         const transactionDate = new Date(t.date);
-        const month = months[transactionDate.getMonth()];
-        // Only include transactions from the last 6 months
-        if (dataByMonth.hasOwnProperty(month)) {
-          if (!dataByMonth[month]) {
-            dataByMonth[month] = { income: 0, expenses: 0 };
-          }
-          dataByMonth[month][type] += t.amount;
+        const monthKey = format(transactionDate, 'MMM yyyy');
+
+        if (!dataByMonth[monthKey]) {
+          dataByMonth[monthKey] = { income: 0, expenses: 0 };
         }
+        dataByMonth[monthKey][type] += t.amount;
       });
     };
 
     processTransactions(incomes, 'income');
     processTransactions(expenses, 'expense');
 
-    return Object.keys(dataByMonth).map(month => ({
-      month,
-      income: dataByMonth[month]?.income || 0,
-      expenses: dataByMonth[month]?.expenses || 0
+    const sortedMonthKeys = Object.keys(dataByMonth).sort((a, b) => {
+        return new Date(a).getTime() - new Date(b).getTime();
+    });
+
+    // Get the last 6 months from the sorted keys
+    const last6MonthKeys = sortedMonthKeys.slice(-6);
+
+    const finalChartData = last6MonthKeys.map(key => ({
+      month: key.split(' ')[0], // just the 'MMM' part
+      ...dataByMonth[key]
     }));
+
+    // If there are fewer than 6 months of data, fill with empty months
+    if (finalChartData.length < 6) {
+        const today = new Date();
+        const pastMonths: {month: string, income: number, expenses: number}[] = [];
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date();
+            d.setMonth(today.getMonth() - i);
+            const monthKey = format(d, 'MMM yyyy');
+            const monthLabel = format(d, 'MMM');
+
+            if (!dataByMonth[monthKey]) {
+                pastMonths.push({ month: monthLabel, income: 0, expenses: 0 });
+            } else {
+                pastMonths.push({ month: monthLabel, ...dataByMonth[monthKey]});
+            }
+        }
+        const uniqueMonths = [...new Map(pastMonths.map(item => [item.month, item])).values()];
+        return uniqueMonths.slice(-6);
+    }
+    
+    return finalChartData;
 
   }, [incomes, expenses]);
 
