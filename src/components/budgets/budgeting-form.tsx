@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PiggyBank, Lightbulb, Loader2 } from "lucide-react";
 import type { FullBudgetingRecommendationsOutput } from "@/ai/flows/budgeting-recommendations.types";
-import { getBudgetingRecommendations } from "@/app/dashboard/budgets/actions";
 import { useAuth } from "@/firebase";
 
 export function BudgetingForm() {
@@ -54,9 +53,9 @@ export function BudgetingForm() {
     <div className="space-y-6">
       <Card className="text-center">
         <CardHeader>
-          <CardTitle className="font-headline">Get Your AI-Powered Budget</CardTitle>
+          <CardTitle className="font-headline">Get Your Personalized Budget Plan</CardTitle>
           <CardDescription>
-            Let our AI analyze your spending and create a personalized budget to help you reach your goals faster.
+            Let us analyze your spending and create a budget to help you reach your goals faster.
           </CardDescription>
         </CardHeader>
         <CardContent>

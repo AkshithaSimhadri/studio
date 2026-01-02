@@ -1,13 +1,10 @@
 "use server";
 
-import { budgetingRecommendations } from "@/ai/flows/budgeting-recommendations";
 import { 
-  type FullBudgetingRecommendationsOutput,
-  type BudgetingRecommendationsOutput
+  type FullBudgetingRecommendationsOutput
 } from "@/ai/flows/budgeting-recommendations.types";
 import type { Category, Expense, Income } from "@/lib/types";
 import { initializeAdminApp } from "@/firebase/admin";
-import { getAuth } from "firebase-admin/auth";
 import { headers } from "next/headers";
 
 // Categorize expenses into Needs, Wants, and Savings/Other
@@ -19,6 +16,7 @@ const defaultSavingsTips = [
   "Review your subscriptions and cancel any you don't use.",
   "Try cooking more meals at home instead of eating out.",
   "Set up automatic transfers to your savings account each payday.",
+  "Look for generic brands to save money on groceries.",
 ];
 
 async function getUserId() {
@@ -52,23 +50,7 @@ export async function getBudgetingRecommendations(): Promise<FullBudgetingRecomm
 
     const totalIncome = incomes.reduce((sum, t) => sum + t.amount, 0);
 
-    const expenseSummary = expenses.map(t => ({ category: t.category, amount: t.amount }));
-
-    // 1. Get savings tips from AI (creative task)
-    let aiResult: BudgetingRecommendationsOutput | null = null;
-    try {
-        if (totalIncome > 0 && expenseSummary.length > 0) {
-            aiResult = await budgetingRecommendations({
-                income: totalIncome,
-                expenses: expenseSummary,
-            });
-        }
-    } catch (aiError) {
-        console.error("AI budgetingRecommendations flow failed:", aiError);
-        // Don't surface the error to the user, just use default tips.
-    }
-    
-    // 2. Calculate budget recommendations in code (logical task)
+    // Calculate budget recommendations in code (logical task)
     const needsSpend = expenses
         .filter(e => needsCategories.includes(e.category))
         .reduce((sum, e) => sum + e.amount, 0);
@@ -100,10 +82,10 @@ export async function getBudgetingRecommendations(): Promise<FullBudgetingRecomm
         }
     ];
 
-    // 3. Combine results
+    // Combine results
     const finalOutput: FullBudgetingRecommendationsOutput = {
       budgetRecommendations,
-      savingsTips: aiResult?.savingsTips ?? defaultSavingsTips,
+      savingsTips: defaultSavingsTips,
     };
     
     return finalOutput;
