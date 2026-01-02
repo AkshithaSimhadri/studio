@@ -25,7 +25,7 @@ export function MotivationCard() {
   return (
     <div className="relative group overflow-hidden rounded-lg">
       <div
-        className="absolute -inset-1 bg-gradient-to-r from-yellow-400 via-gold-500 to-orange-500 rounded-lg blur-lg opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-border-spin"
+        className="absolute -inset-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 rounded-lg blur-lg opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-border-spin"
       ></div>
       <Card className="relative bg-gray-900">
         <CardHeader>
