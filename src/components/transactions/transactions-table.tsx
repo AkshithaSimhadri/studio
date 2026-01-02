@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { ChevronDown } from "lucide-react";
 import { categories, type Category, type Transaction } from "@/lib/types";
 import { Skeleton } from "../ui/skeleton";
+import { format } from 'date-fns';
 
 type TransactionsTableProps = {
   transactions: Transaction[];
@@ -29,11 +30,6 @@ type TransactionsTableProps = {
 
 export function TransactionsTable({ transactions, isLoading }: TransactionsTableProps) {
   const [categoryFilter, setCategoryFilter] = React.useState<Category[]>([]);
-  const [isClient, setIsClient] = React.useState(false);
-
-  React.useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const filteredTransactions = transactions.filter(
     (transaction) =>
@@ -110,7 +106,7 @@ export function TransactionsTable({ transactions, isLoading }: TransactionsTable
                 <Badge variant="outline">{transaction.category}</Badge>
               </TableCell>
               <TableCell>
-                {isClient ? new Date(transaction.date).toLocaleDateString() : ''}
+                {format(new Date(transaction.date), 'MMM d, yyyy')}
               </TableCell>
               <TableCell
                 className={`text-right font-semibold ${

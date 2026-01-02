@@ -20,9 +20,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { useState, useEffect } from "react";
 import type { Expense, Income, Transaction } from "@/lib/types";
 import { Skeleton } from "../ui/skeleton";
+import { format } from 'date-fns';
 
 type RecentTransactionsProps = {
   incomes: Income[];
@@ -31,11 +31,6 @@ type RecentTransactionsProps = {
 };
 
 export function RecentTransactions({ incomes, expenses, isLoading }: RecentTransactionsProps) {
-  const [isClient, setIsClient] = useState(false);
-  
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const transactions: Transaction[] = [
     ...incomes.map(item => ({ ...item, type: 'income' as const, description: item.source })),
@@ -99,7 +94,7 @@ export function RecentTransactions({ incomes, expenses, isLoading }: RecentTrans
                   <Badge variant="outline">{transaction.category}</Badge>
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">
-                    {isClient ? new Date(transaction.date).toLocaleDateString() : ''}
+                    {format(new Date(transaction.date), 'MMM d, yyyy')}
                 </TableCell>
               </TableRow>
             ))}
