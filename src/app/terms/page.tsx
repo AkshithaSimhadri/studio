@@ -1,6 +1,8 @@
+
 import { AppFooter } from "@/components/app-footer";
 import { Landmark } from "lucide-react";
 import Link from "next/link";
+import { Button } from '@/components/ui/button';
 
 export default function TermsPage() {
   return (
@@ -14,12 +16,19 @@ export default function TermsPage() {
           <Link href="/#features" className="text-sm font-medium hover:underline underline-offset-4">
             Features
           </Link>
-          <Link href="/dashboard" className="text-sm font-medium hover:underline underline-offset-4">
-            Dashboard
-          </Link>
           <Link href="/about" className="text-sm font-medium hover:underline underline-offset-4">
             About
           </Link>
+           <Button asChild variant="outline">
+            <Link href="/login">
+              Login
+            </Link>
+          </Button>
+           <Button asChild>
+            <Link href="/dashboard">
+              Dashboard
+            </Link>
+          </Button>
         </nav>
       </header>
       <main className="flex-1">

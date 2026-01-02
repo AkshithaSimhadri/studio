@@ -5,14 +5,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { Landmark } from "lucide-react";
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import {
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { RegisterForm, type RegisterSchema } from "@/components/auth/register-form";
+import { LoginForm } from "@/components/auth/login-form";
 import { useAuth, useUser, useFirestore } from '@/firebase';
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const authBgImage = PlaceHolderImages.find(
     (img) => img.id === "auth-background"
   );
@@ -28,21 +32,29 @@ export default function RegisterPage() {
     }
   }, [user, isUserLoading, router]);
 
-  const handleRegister = async (data: RegisterSchema) => {
+  const handleEmailLogin = async (data: { email: string; password: string }) => {
     setIsSubmitting(true);
-    const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-    const newUser = userCredential.user;
+    await signInWithEmailAndPassword(auth, data.email, data.password);
+    // Let the useEffect handle the redirect
+    setIsSubmitting(false);
+  };
 
-    // Create user profile in Firestore
-    const userRef = doc(firestore, 'users', newUser.uid);
+  const handleGoogleLogin = async () => {
+    setIsSubmitting(true);
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    // Create user profile in Firestore if it doesn't exist
+    const userRef = doc(firestore, 'users', user.uid);
     await setDoc(userRef, {
-      id: newUser.uid,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      registrationDate: new Date().toISOString(),
-    });
-    
+        id: user.uid,
+        firstName: user.displayName?.split(' ')[0] || '',
+        lastName: user.displayName?.split(' ')[1] || '',
+        email: user.email,
+        registrationDate: new Date().toISOString(),
+    }, { merge: true });
+
     // Let the useEffect handle the redirect
     setIsSubmitting(false);
   };
@@ -52,16 +64,20 @@ export default function RegisterPage() {
       <div className="flex items-center justify-center py-12 bg-background/60 backdrop-blur-sm">
         <div className="mx-auto grid w-[350px] gap-6">
           <div className="grid gap-2 text-center">
-             <Link href="/" className="flex items-center justify-center gap-2 text-primary-foreground mb-4">
+            <Link href="/" className="flex items-center justify-center gap-2 text-primary-foreground mb-4">
                 <Landmark className="h-8 w-8 text-primary" />
                 <span className="text-3xl font-bold font-headline text-foreground">FinanceWise AI</span>
             </Link>
           </div>
-          <RegisterForm onRegister={handleRegister} isSubmitting={isSubmitting} />
+          <LoginForm
+            onEmailLogin={handleEmailLogin}
+            onGoogleLogin={handleGoogleLogin}
+            isSubmitting={isSubmitting}
+          />
         </div>
       </div>
       <div className="hidden bg-muted lg:block relative">
-      {authBgImage && (
+        {authBgImage && (
           <Image
             src={authBgImage.imageUrl}
             alt={authBgImage.description}
@@ -70,7 +86,7 @@ export default function RegisterPage() {
             data-ai-hint={authBgImage.imageHint}
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-br from-background/20 via-background/50 to-background/90"></div>
+         <div className="absolute inset-0 bg-gradient-to-br from-background/20 via-background/50 to-background/90"></div>
         <div className="absolute bottom-0 left-0 right-0 p-8">
             <div className="text-white bg-black/40 p-6 rounded-lg backdrop-blur-md">
                 <h2 className="text-4xl font-bold">Take Control of Your Finances</h2>
