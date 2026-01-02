@@ -94,7 +94,7 @@ export function RecentTransactions({ incomes, expenses, isLoading }: RecentTrans
                   <Badge variant="outline">{transaction.category}</Badge>
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">
-                    {format(new Date(transaction.date), 'MMM d, yyyy')}
+                    {format(new Date(transaction.date), 'dd-MM-yyyy')}
                 </TableCell>
               </TableRow>
             ))}

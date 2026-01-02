@@ -106,7 +106,7 @@ export function TransactionsTable({ transactions, isLoading }: TransactionsTable
                 <Badge variant="outline">{transaction.category}</Badge>
               </TableCell>
               <TableCell>
-                {format(new Date(transaction.date), 'MMM d, yyyy')}
+                {format(new Date(transaction.date), 'dd-MM-yyyy')}
               </TableCell>
               <TableCell
                 className={`text-right font-semibold ${
