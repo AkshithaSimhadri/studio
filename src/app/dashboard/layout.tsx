@@ -4,11 +4,11 @@ import { useEffect, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { PanelLeft } from "lucide-react";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AppHeader } from '@/components/app-header';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function DashboardLayout({
   children,
@@ -17,6 +17,7 @@ export default function DashboardLayout({
 }) {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const dashboardBgImage = PlaceHolderImages.find(img => img.id === 'dashboard-background');
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -40,13 +41,28 @@ export default function DashboardLayout({
 
   return (
       <SidebarProvider>
-        <div className="flex min-h-screen w-full">
-          <AppSidebar />
-          <div className="flex flex-col flex-1">
-            <AppHeader />
-            <main className="flex-1 p-4 md:p-6 lg:p-8 bg-secondary/50">
-              {children}
-            </main>
+        <div className="flex min-h-screen w-full relative">
+          {dashboardBgImage && (
+            <div className="absolute inset-0 z-0">
+              <Image
+                src={dashboardBgImage.imageUrl}
+                alt={dashboardBgImage.description}
+                fill
+                style={{ objectFit: 'cover' }}
+                className="pointer-events-none"
+                data-ai-hint={dashboardBgImage.imageHint}
+              />
+              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm"></div>
+            </div>
+          )}
+          <div className="relative z-10 flex flex-1">
+            <AppSidebar />
+            <div className="flex flex-col flex-1">
+              <AppHeader />
+              <main className="flex-1 p-4 md:p-6 lg:p-8">
+                {children}
+              </main>
+            </div>
           </div>
         </div>
       </SidebarProvider>
