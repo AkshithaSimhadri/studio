@@ -57,7 +57,7 @@ export function useDoc<T = any>(
 
     setIsLoading(true);
     setError(null);
-    // Optional: setData(null); // Clear previous data instantly
+    setData(null); 
 
     const unsubscribe = onSnapshot(
       memoizedDocRef,
