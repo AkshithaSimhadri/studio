@@ -32,7 +32,7 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
   const { toast } = useToast();
 
   const [name, setName] = useState(goal.name);
-  const [targetAmount, setTargetAmount] = useState('0');
+  const [targetAmount, setTargetAmount] = useState(goal.targetAmount.toString());
   const [targetDate, setTargetDate] = useState('');
   const [open, setOpen] = useState(false);
   
@@ -40,7 +40,13 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
     if (goal) {
         setName(goal.name);
         setTargetAmount(goal.targetAmount.toString());
-        setTargetDate(format(new Date(goal.targetDate), 'yyyy-MM-dd'));
+        // Ensure date is in 'yyyy-MM-dd' format for the input
+        try {
+          setTargetDate(format(new Date(goal.targetDate), 'yyyy-MM-dd'));
+        } catch (e) {
+          console.error("Invalid date format for goal:", goal.targetDate);
+          setTargetDate('');
+        }
     }
   }, [goal]);
 
@@ -58,6 +64,15 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
     const goalRef = doc(firestore, 'users', user.uid, 'financial_goals', goal.id);
 
     const newTargetAmount = parseFloat(targetAmount);
+    if (isNaN(newTargetAmount) || newTargetAmount <= 0) {
+        toast({
+            variant: 'destructive',
+            title: 'Invalid Target',
+            description: 'Please enter a valid positive number for the target amount.',
+        });
+        return;
+    }
+
     if (newTargetAmount < goal.currentAmount) {
         toast({
             variant: 'destructive',
@@ -93,22 +108,22 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
+            <Label htmlFor="name-edit" className="text-right">
               Goal Name
             </Label>
             <Input
-              id="name"
+              id="name-edit"
               className="col-span-3"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="target" className="text-right">
+            <Label htmlFor="target-edit" className="text-right">
               Total Target
             </Label>
             <Input
-              id="target"
+              id="target-edit"
               type="number"
               className="col-span-3"
               value={targetAmount}
@@ -116,11 +131,11 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="deadline" className="text-right">
+            <Label htmlFor="deadline-edit" className="text-right">
               Deadline
             </Label>
             <Input
-              id="deadline"
+              id="deadline-edit"
               type="date"
               className="col-span-3"
               value={targetDate}
