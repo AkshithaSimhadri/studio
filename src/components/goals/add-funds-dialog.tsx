@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -43,7 +44,7 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
 
     // This will decrease the target amount by the fund amount.
     // We also increment the current amount to track total contributions.
-    await updateDocumentNonBlocking(goalRef, {
+    updateDocumentNonBlocking(goalRef, {
       targetAmount: increment(-fundAmount),
       currentAmount: increment(fundAmount)
     });
