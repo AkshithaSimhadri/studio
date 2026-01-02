@@ -31,24 +31,22 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
   const firestore = useFirestore();
   const { toast } = useToast();
 
-  // The total goal is the sum of what's saved and what's remaining.
-  const [totalGoalAmount, setTotalGoalAmount] = useState('0');
   const [name, setName] = useState(goal.name);
+  const [targetAmount, setTargetAmount] = useState('0');
   const [targetDate, setTargetDate] = useState('');
   const [open, setOpen] = useState(false);
   
   useEffect(() => {
     if (goal) {
         setName(goal.name);
-        const total = goal.currentAmount + goal.targetAmount;
-        setTotalGoalAmount(total.toString());
+        setTargetAmount(goal.targetAmount.toString());
         setTargetDate(format(new Date(goal.targetDate), 'yyyy-MM-dd'));
     }
   }, [goal]);
 
 
   const handleSubmit = async () => {
-    if (!name || !totalGoalAmount || !targetDate || !user || !firestore) {
+    if (!name || !targetAmount || !targetDate || !user || !firestore) {
       toast({
         variant: 'destructive',
         title: 'Validation Error',
@@ -59,14 +57,19 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
 
     const goalRef = doc(firestore, 'users', user.uid, 'financial_goals', goal.id);
 
-    const newTotalAmount = parseFloat(totalGoalAmount);
-    // The new targetAmount (remaining) is the new total minus what's already saved.
-    // Ensure it doesn't go below zero.
-    const newRemainingAmount = Math.max(0, newTotalAmount - goal.currentAmount);
-
+    const newTargetAmount = parseFloat(targetAmount);
+    if (newTargetAmount < goal.currentAmount) {
+        toast({
+            variant: 'destructive',
+            title: 'Invalid Target',
+            description: 'The new target amount cannot be less than the amount already saved.',
+        });
+        return;
+    }
+    
     updateDocumentNonBlocking(goalRef, {
       name,
-      targetAmount: newRemainingAmount, // This is the new remaining amount
+      targetAmount: newTargetAmount,
       targetDate: new Date(targetDate).toISOString(),
     });
 
@@ -108,8 +111,8 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
               id="target"
               type="number"
               className="col-span-3"
-              value={totalGoalAmount}
-              onChange={(e) => setTotalGoalAmount(e.target.value)}
+              value={targetAmount}
+              onChange={(e) => setTargetAmount(e.target.value)}
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">

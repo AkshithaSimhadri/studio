@@ -51,13 +51,12 @@ export function GoalCard({ goal }: { goal: FinancialGoal }) {
   const firestore = useFirestore();
   const { toast } = useToast();
   
-  const { progress, totalGoal } = useMemo(() => {
-    // The total goal is the sum of what's been saved and what's remaining.
-    const total = goal.currentAmount + goal.targetAmount;
+  const { progress } = useMemo(() => {
+    // The targetAmount is the total goal.
     // Calculate progress as a percentage of the total goal.
-    // If the total is 0 (goal fully funded with 0 amount), consider it 100% complete.
-    const prog = total > 0 ? (goal.currentAmount / total) * 100 : 100;
-    return { progress: prog, totalGoal: total };
+    // If the total is 0, consider it 100% complete.
+    const prog = goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 100;
+    return { progress: Math.min(100, prog) }; // Cap progress at 100%
   }, [goal.currentAmount, goal.targetAmount]);
 
 
@@ -156,7 +155,7 @@ export function GoalCard({ goal }: { goal: FinancialGoal }) {
             ${goal.currentAmount.toLocaleString()}
           </span>
           {' / '}
-          <span>${totalGoal.toLocaleString()}</span>
+          <span>${goal.targetAmount.toLocaleString()}</span>
         </p>
       </CardContent>
       <CardFooter className="flex justify-between">
@@ -165,7 +164,7 @@ export function GoalCard({ goal }: { goal: FinancialGoal }) {
         ) : (
           <div className="h-6 w-24 animate-pulse rounded-full bg-muted" />
         )}
-        <AddFundsDialog goal={goal} />
+        {progress < 100 && <AddFundsDialog goal={goal} />}
       </CardFooter>
     </Card>
   );

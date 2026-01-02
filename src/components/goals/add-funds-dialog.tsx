@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dialog';
 import { PiggyBank } from 'lucide-react';
 import { useUser, useFirestore, updateDocumentNonBlocking } from '@/firebase';
-import { doc, increment, updateDoc } from 'firebase/firestore';
+import { doc, increment } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import type { FinancialGoal } from '@/lib/types';
 
@@ -28,9 +28,6 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
 
   const [amount, setAmount] = useState('');
   const [open, setOpen] = useState(false);
-
-  // Calculate the total goal amount for display purposes
-  const totalGoal = goal.currentAmount + goal.targetAmount;
 
   const handleSubmit = () => {
     const fundAmount = parseFloat(amount);
@@ -45,10 +42,9 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
 
     const goalRef = doc(firestore, 'users', user.uid, 'financial_goals', goal.id);
 
-    // Use a non-blocking update for an optimistic UI.
+    // Only increment the current amount. The target amount is fixed.
     updateDocumentNonBlocking(goalRef, {
         currentAmount: increment(fundAmount),
-        targetAmount: increment(-fundAmount),
     });
 
     toast({
@@ -73,8 +69,7 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
         <DialogHeader>
           <DialogTitle>Add Funds to "{goal.name}"</DialogTitle>
           <DialogDescription>
-            Saved: ${goal.currentAmount.toLocaleString()} / Total: ${totalGoal.toLocaleString()}.
-            Remaining: ${goal.targetAmount.toLocaleString()}.
+            Saved: ${goal.currentAmount.toLocaleString()} / Goal: ${goal.targetAmount.toLocaleString()}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
