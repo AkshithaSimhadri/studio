@@ -40,20 +40,9 @@ export default function AboutPage() {
           <span className="font-bold text-lg">FinanceWise AI</span>
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link href="/#features" className="text-sm font-medium hover:underline underline-offset-4">
-            Features
-          </Link>
-          <Link href="/about" className="text-sm font-medium hover:underline underline-offset-4">
-            About
-          </Link>
-          <Button asChild variant="outline">
+          <Button asChild>
             <Link href="/login">
-              Login
-            </Link>
-          </Button>
-           <Button asChild>
-            <Link href="/login">
-              Get Started
+              Back to App
             </Link>
           </Button>
         </nav>
@@ -63,16 +52,11 @@ export default function AboutPage() {
            <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">
-                  Key Features
-                </div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
-                  Everything You Need to Succeed
-                </h2>
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
+                  About FinanceWise AI
+                </h1>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Our platform is packed with features designed to give you a
-                  clear view of your financial health and guide you towards
-                  your goals.
+                  Our mission is to empower individuals to take control of their financial lives through intelligent, intuitive, and personalized tools. We believe that financial well-being should be accessible to everyone.
                 </p>
               </div>
             </div>
