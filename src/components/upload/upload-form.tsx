@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -23,37 +24,57 @@ const readFileAsDataURI = (file: File): Promise<string> => {
     });
 };
 
+const readFileAsText = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsText(file);
+    });
+};
+
 export function UploadForm({ onUploadSuccess }: UploadFormProps) {
-  const { register, handleSubmit, watch } = useForm<{ pdfFile: FileList }>();
+  const { register, handleSubmit, watch } = useForm<{ file: FileList }>();
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const watchedFile = watch("pdfFile");
+  const watchedFile = watch("file");
 
-  const onSubmit: SubmitHandler<{ pdfFile: FileList }> = async (data) => {
-    const file = data.pdfFile[0];
+  const onSubmit: SubmitHandler<{ file: FileList }> = async (data) => {
+    const file = data.file[0];
     if (!file) {
-      toast({ variant: 'destructive', title: 'No file selected', description: 'Please choose a PDF file to upload.' });
+      toast({ variant: 'destructive', title: 'No file selected', description: 'Please choose a PDF or CSV file to upload.' });
       return;
     }
 
     setLoading(true);
     try {
-      const dataUri = await readFileAsDataURI(file);
+        let fileContent: string;
+        let body;
+
+        if (file.type === 'application/pdf') {
+            fileContent = await readFileAsDataURI(file);
+            body = { fileDataUri: fileContent, fileType: 'pdf' };
+        } else if (file.type === 'text/csv') {
+            fileContent = await readFileAsText(file);
+            body = { fileContent: fileContent, fileType: 'csv' };
+        } else {
+            throw new Error('Unsupported file type. Please upload a PDF or CSV.');
+        }
       
       const response = await fetch('/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pdfDataUri: dataUri }),
+        body: JSON.stringify(body),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to process PDF.');
+        throw new Error(result.error || 'Failed to process file.');
       }
       
       onUploadSuccess(result.transactions);
-      toast({ title: 'Upload Successful', description: `${result.transactions.length} transactions were extracted from your PDF.` });
+      toast({ title: 'Upload Successful', description: `${result.transactions.length} transactions were extracted from your file.` });
 
     } catch (error: any) {
       toast({ variant: 'destructive', title: 'Upload Failed', description: error.message });
@@ -65,14 +86,14 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Upload Transaction PDF</CardTitle>
-        <CardDescription>Select a PDF file containing your transaction history to be analyzed by AI.</CardDescription>
+        <CardTitle>Upload Transaction File</CardTitle>
+        <CardDescription>Select a PDF or CSV file containing your transaction history to be analyzed by AI.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid gap-2">
-            <Label htmlFor="pdf-upload">PDF Document</Label>
-            <Input id="pdf-upload" type="file" accept=".pdf" {...register('pdfFile', { required: true })} />
+            <Label htmlFor="file-upload">Transaction Document</Label>
+            <Input id="file-upload" type="file" accept=".pdf,.csv" {...register('file', { required: true })} />
           </div>
           <Button type="submit" disabled={loading || !watchedFile || watchedFile.length === 0}>
             {loading ? (
