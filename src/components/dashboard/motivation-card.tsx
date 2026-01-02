@@ -27,7 +27,7 @@ export function MotivationCard() {
       <div
         className="absolute -inset-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 rounded-lg blur-lg opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-border-spin"
       ></div>
-      <Card className="relative bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 bg-[length:200%_200%] animate-subtle-shift">
+      <Card className="relative bg-gradient-to-br from-purple-800 via-pink-700 to-orange-600 bg-[length:200%_200%] animate-subtle-shift">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-white">
             <BrainCircuit /> Daily Motivation
