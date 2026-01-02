@@ -1,24 +1,22 @@
 'use client';
 
-import { useState } from 'react';
-import { placeholderGoals } from '@/lib/placeholder-data';
 import { GoalCard } from '@/components/goals/goal-card';
 import { AddGoalDialog } from '@/components/goals/add-goal-dialog';
-import type { Goal } from '@/lib/types';
+import type { FinancialGoal } from '@/lib/types';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
+import { collection } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function GoalsPage() {
-  const [goals, setGoals] = useState<Goal[]>(placeholderGoals);
+  const { user } = useUser();
+  const firestore = useFirestore();
 
-  const addGoal = (newGoal: Omit<Goal, 'id' | 'currentAmount'>) => {
-    setGoals((prevGoals) => [
-      {
-        id: `g${Date.now()}`,
-        currentAmount: 0,
-        ...newGoal,
-      },
-      ...prevGoals,
-    ]);
-  };
+  const goalsQuery = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return collection(firestore, 'users', user.uid, 'financial_goals');
+  }, [user, firestore]);
+
+  const { data: goals, isLoading } = useCollection<FinancialGoal>(goalsQuery);
 
   return (
     <div className="space-y-6">
@@ -29,14 +27,22 @@ export default function GoalsPage() {
             Track your progress towards your dreams.
           </p>
         </div>
-        <AddGoalDialog onAddGoal={addGoal} />
+        <AddGoalDialog />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {goals.map((goal) => (
-          <GoalCard key={goal.id} goal={goal} />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <Skeleton className="h-48 w-full" />
+          <Skeleton className="h-48 w-full" />
+          <Skeleton className="h-48 w-full" />
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {goals?.map((goal) => (
+            <GoalCard key={goal.id} goal={goal} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

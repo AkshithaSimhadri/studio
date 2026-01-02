@@ -20,16 +20,29 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { placeholderTransactions } from "@/lib/placeholder-data";
 import { useState, useEffect } from "react";
+import type { Expense, Income, Transaction } from "@/lib/types";
+import { Skeleton } from "../ui/skeleton";
 
-export function RecentTransactions() {
+type RecentTransactionsProps = {
+  incomes: Income[];
+  expenses: Expense[];
+  isLoading: boolean;
+};
+
+export function RecentTransactions({ incomes, expenses, isLoading }: RecentTransactionsProps) {
   const [isClient, setIsClient] = useState(false);
-  const recentTransactions = placeholderTransactions.slice(0, 5);
-
+  
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const transactions: Transaction[] = [
+    ...incomes.map(item => ({ ...item, type: 'income' as const, description: item.source })),
+    ...expenses.map(item => ({ ...item, type: 'expense' as const })),
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  
+  const recentTransactions = transactions.slice(0, 5);
 
 
   return (
@@ -49,6 +62,14 @@ export function RecentTransactions() {
         </Button>
       </CardHeader>
       <CardContent>
+        {isLoading ? (
+          <div className="space-y-4">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        ) : (
         <Table>
           <TableHeader>
             <TableRow>
@@ -84,6 +105,7 @@ export function RecentTransactions() {
             ))}
           </TableBody>
         </Table>
+        )}
       </CardContent>
     </Card>
   );

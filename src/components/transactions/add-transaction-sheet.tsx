@@ -23,13 +23,16 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { PlusCircle } from "lucide-react";
-import { categories, Category, Transaction } from "@/lib/types";
+import { categories, Category } from "@/lib/types";
+import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
-type AddTransactionSheetProps = {
-  onAddTransaction: (transaction: Omit<Transaction, 'id'>) => void;
-};
+export function AddTransactionSheet() {
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
 
-export function AddTransactionSheet({ onAddTransaction }: AddTransactionSheetProps) {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<'income' | 'expense'>('expense');
@@ -37,18 +40,39 @@ export function AddTransactionSheet({ onAddTransaction }: AddTransactionSheetPro
   const [date, setDate] = useState('');
   const [open, setOpen] = useState(false);
 
-  const handleSubmit = () => {
-    if (!description || !amount || !category || !date) {
-        // Basic validation
+  const handleSubmit = async () => S => {
+    if (!description || !amount || !category || !date || !user || !firestore) {
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: "Please fill out all fields to add a transaction.",
+        });
         return;
     }
-    onAddTransaction({
-      description,
-      amount: parseFloat(amount),
-      type,
-      category,
-      date,
+
+    const collectionName = type === 'income' ? 'incomes' : 'expenses';
+    const transactionCollection = collection(firestore, 'users', user.uid, collectionName);
+
+    const dataPayload: any = {
+        userId: user.uid,
+        date: new Date(date).toISOString(),
+        amount: parseFloat(amount),
+        category: category,
+    };
+
+    if (type === 'income') {
+        dataPayload.source = description; // 'source' for income
+    } else {
+        dataPayload.description = description; // 'description' for expense
+    }
+
+    await addDocumentNonBlocking(transactionCollection, dataPayload);
+
+    toast({
+      title: "Transaction Added",
+      description: "Your transaction has been successfully recorded.",
     });
+
     // Reset form and close sheet
     setDescription('');
     setAmount('');

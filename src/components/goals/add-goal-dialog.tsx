@@ -16,32 +16,49 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { PlusCircle } from "lucide-react";
-import type { Goal } from "@/lib/types";
+import { useUser, useFirestore, addDocumentNonBlocking } from "@/firebase";
+import { collection } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
 
-type AddGoalDialogProps = {
-  onAddGoal: (goal: Omit<Goal, 'id' | 'currentAmount'>) => void;
-};
+export function AddGoalDialog() {
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
 
-export function AddGoalDialog({ onAddGoal }: AddGoalDialogProps) {
   const [name, setName] = useState('');
   const [targetAmount, setTargetAmount] = useState('');
-  const [deadline, setDeadline] = useState('');
+  const [targetDate, setTargetDate] = useState('');
   const [open, setOpen] = useState(false);
 
-  const handleSubmit = () => {
-    if (!name || !targetAmount || !deadline) {
-      // Basic validation
+  const handleSubmit = async () => {
+    if (!name || !targetAmount || !targetDate || !user || !firestore) {
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Please fill out all fields.",
+      });
       return;
     }
-    onAddGoal({
+
+    const goalsCol = collection(firestore, 'users', user.uid, 'financial_goals');
+    
+    await addDocumentNonBlocking(goalsCol, {
+      userId: user.uid,
       name,
       targetAmount: parseFloat(targetAmount),
-      deadline,
+      currentAmount: 0,
+      targetDate: new Date(targetDate).toISOString(),
     });
+    
+    toast({
+      title: "Goal Added",
+      description: `Your goal "${name}" has been added.`,
+    });
+
     // Reset form and close dialog
     setName('');
     setTargetAmount('');
-    setDeadline('');
+    setTargetDate('');
     setOpen(false);
   };
 
@@ -77,7 +94,7 @@ export function AddGoalDialog({ onAddGoal }: AddGoalDialogProps) {
             <Label htmlFor="deadline" className="text-right">
               Deadline
             </Label>
-            <Input id="deadline" type="date" className="col-span-3" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+            <Input id="deadline" type="date" className="col-span-3" value={targetDate} onChange={(e) => setTargetDate(e.target.value)} />
           </div>
         </div>
         <DialogFooter>

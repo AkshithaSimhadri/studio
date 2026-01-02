@@ -20,12 +20,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown } from "lucide-react";
 import { categories, type Category, type Transaction } from "@/lib/types";
+import { Skeleton } from "../ui/skeleton";
 
 type TransactionsTableProps = {
   transactions: Transaction[];
+  isLoading: boolean;
 };
 
-export function TransactionsTable({ transactions }: TransactionsTableProps) {
+export function TransactionsTable({ transactions, isLoading }: TransactionsTableProps) {
   const [categoryFilter, setCategoryFilter] = React.useState<Category[]>([]);
   const [isClient, setIsClient] = React.useState(false);
 
@@ -69,6 +71,15 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+       {isLoading ? (
+        <div className="space-y-2">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+        </div>
+      ) : (
       <Table>
         <TableHeader>
           <TableRow>
@@ -115,6 +126,7 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
           ))}
         </TableBody>
       </Table>
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { Goal } from "@/lib/types";
+import type { FinancialGoal } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -20,12 +20,12 @@ type DeadlineInfo = {
   variant: "destructive" | "secondary" | "outline";
 };
 
-export function GoalCard({ goal }: { goal: Goal }) {
+export function GoalCard({ goal }: { goal: FinancialGoal }) {
   const [deadlineInfo, setDeadlineInfo] = useState<DeadlineInfo | null>(null);
   const progress = (goal.currentAmount / goal.targetAmount) * 100;
 
   useEffect(() => {
-    const deadline = parseISO(goal.deadline);
+    const deadline = parseISO(goal.targetDate);
     const daysLeft = differenceInDays(deadline, new Date());
 
     const getDeadlineBadgeVariant = () => {
@@ -38,14 +38,14 @@ export function GoalCard({ goal }: { goal: Goal }) {
       text: daysLeft < 0 ? 'Overdue' : `${formatDistanceToNow(deadline)} left`,
       variant: getDeadlineBadgeVariant(),
     });
-  }, [goal.deadline]);
+  }, [goal.targetDate]);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="truncate">{goal.name}</CardTitle>
         <CardDescription>
-          Deadline: {new Date(goal.deadline).toLocaleDateString()}
+          Deadline: {new Date(goal.targetDate).toLocaleDateString()}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">

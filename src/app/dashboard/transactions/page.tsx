@@ -1,20 +1,33 @@
 'use client';
 
-import { useState } from 'react';
 import { TransactionsTable } from '@/components/transactions/transactions-table';
 import { AddTransactionSheet } from '@/components/transactions/add-transaction-sheet';
-import { placeholderTransactions } from '@/lib/placeholder-data';
-import type { Transaction } from '@/lib/types';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import type { Expense, Income } from '@/lib/types';
 
 export default function TransactionsPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>(placeholderTransactions);
+  const { user } = useUser();
+  const firestore = useFirestore();
 
-  const addTransaction = (newTransaction: Omit<Transaction, 'id'>) => {
-    setTransactions((prevTransactions) => [
-      { id: Date.now().toString(), ...newTransaction },
-      ...prevTransactions,
-    ]);
-  };
+  const expensesQuery = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return collection(firestore, 'users', user.uid, 'expenses');
+  }, [user, firestore]);
+
+  const incomesQuery = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return collection(firestore, 'users', user.uid, 'incomes');
+  }, [user, firestore]);
+
+  const { data: expenses, isLoading: isLoadingExpenses } = useCollection<Expense>(expensesQuery);
+  const { data: incomes, isLoading: isLoadingIncomes } = useCollection<Income>(incomesQuery);
+  
+  const transactions = [
+    ...(incomes || []).map(item => ({ ...item, type: 'income' as const })),
+    ...(expenses || []).map(item => ({ ...item, type: 'expense' as const })),
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
 
   return (
     <div className="space-y-6">
@@ -27,9 +40,9 @@ export default function TransactionsPage() {
             View and manage your income and expenses.
           </p>
         </div>
-        <AddTransactionSheet onAddTransaction={addTransaction} />
+        <AddTransactionSheet />
       </div>
-      <TransactionsTable transactions={transactions} />
+      <TransactionsTable transactions={transactions} isLoading={isLoadingExpenses || isLoadingIncomes} />
     </div>
   );
 }
