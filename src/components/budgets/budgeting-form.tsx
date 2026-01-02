@@ -6,20 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PiggyBank, Lightbulb, Loader2 } from "lucide-react";
 import type { FullBudgetingRecommendationsOutput } from "@/ai/flows/budgeting-recommendations.types";
+import { getBudgetingRecommendations } from "@/app/dashboard/budgets/actions";
 import { useAuth } from "@/firebase";
 
 export function BudgetingForm() {
   const [recommendations, setRecommendations] = useState<FullBudgetingRecommendationsOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const auth = useAuth();
+  const { user } = useAuth();
 
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
     setRecommendations(null);
 
-    const user = auth.currentUser;
     if (!user) {
       setError("You must be logged in to get recommendations.");
       setLoading(false);
@@ -27,17 +27,9 @@ export function BudgetingForm() {
     }
 
     try {
-      const idToken = await user.getIdToken();
-      const response = await fetch('/api/budgets', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-        },
-      });
-
-      const result = await response.json();
+      const result = await getBudgetingRecommendations();
       
-      if (!response.ok) {
+      if ('error' in result) {
         throw new Error(result.error || "An unexpected error occurred.");
       }
       
