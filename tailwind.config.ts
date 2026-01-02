@@ -94,17 +94,12 @@ export default {
           '0%, 100%': { backgroundPosition: '0% 50%' },
           '50%': { backgroundPosition: '100% 50%' },
         },
-        'marquee': {
-          '0%': { transform: 'translateX(100%)' },
-          '100%': { transform: 'translateX(-100%)' },
-        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'gradient-shift': 'gradient-shift 15s ease infinite',
         'subtle-shift': 'subtle-shift 20s ease infinite',
-        'marquee': 'marquee 15s linear infinite',
       },
     },
   },
