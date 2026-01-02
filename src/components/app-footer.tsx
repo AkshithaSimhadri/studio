@@ -2,12 +2,12 @@
 'use client';
 
 import Link from 'next/link';
-import { Landmark, Twitter, Github, Linkedin } from 'lucide-react';
+import { Landmark, Instagram, Facebook, MessageCircle } from 'lucide-react';
 
 export function AppFooter() {
   return (
     <footer className="w-full mt-auto py-4 px-4 md:px-6 border-t bg-footer text-primary-foreground">
-      <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="container mx-auto flex flex-col md:flex-row items-center justify-center gap-4">
         <div className="flex items-center gap-2">
           <Landmark className="h-5 w-5 text-primary-foreground" />
           <span className="font-bold font-headline text-sm">FinanceWise AI</span>
@@ -17,17 +17,17 @@ export function AppFooter() {
           <Link href="#" className="hover:underline hover:text-primary-foreground">Terms</Link>
         </div>
         <div className="flex items-center gap-3">
-          <Link href="#" className="text-primary-foreground/80 hover:text-primary-foreground">
-            <Twitter className="h-4 w-4" />
-            <span className="sr-only">Twitter</span>
+           <Link href="https://wa.me/?text=Check%20out%20FinanceWise%20AI!" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/80 hover:text-primary-foreground">
+            <MessageCircle className="h-4 w-4" />
+            <span className="sr-only">WhatsApp</span>
           </Link>
-          <Link href="#" className="text-primary-foreground/80 hover:text-primary-foreground">
-            <Github className="h-4 w-4" />
-            <span className="sr-only">GitHub</span>
+          <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/80 hover:text-primary-foreground">
+            <Instagram className="h-4 w-4" />
+            <span className="sr-only">Instagram</span>
           </Link>
-          <Link href="#" className="text-primary-foreground/80 hover:text-primary-foreground">
-            <Linkedin className="h-4 w-4" />
-            <span className="sr-only">LinkedIn</span>
+          <Link href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/80 hover:text-primary-foreground">
+            <Facebook className="h-4 w-4" />
+            <span className="sr-only">Facebook</span>
           </Link>
         </div>
       </div>
