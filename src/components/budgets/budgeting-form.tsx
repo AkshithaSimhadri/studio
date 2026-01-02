@@ -126,7 +126,7 @@ export function BudgetingForm() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="bg-primary/5">
         <CardHeader>
           <CardTitle className="font-headline">Get Your 50/30/20 Budget Plan</CardTitle>
           <CardDescription>
