@@ -13,7 +13,8 @@ import {
   Lightbulb,
   LogOut,
   User,
-  UserCircle
+  UserCircle,
+  UploadCloud,
 } from "lucide-react";
 import {
   Sidebar,
@@ -47,6 +48,7 @@ const navItems = [
   { href: "/dashboard/goals", icon: Target, label: "Goals" },
   { href: "/dashboard/forecast", icon: AreaChart, label: "Forecast" },
   { href: "/dashboard/guidance", icon: Lightbulb, label: "Guidance" },
+  { href: "/dashboard/upload", icon: UploadCloud, label: "Upload" },
 ];
 
 export function AppSidebar() {
