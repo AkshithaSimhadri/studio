@@ -61,8 +61,8 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
 
     const newTotalAmount = parseFloat(totalGoalAmount);
     // The new targetAmount (remaining) is the new total minus what's already saved.
-    const newRemainingAmount = newTotalAmount - goal.currentAmount;
-
+    // Ensure it doesn't go below zero.
+    const newRemainingAmount = Math.max(0, newTotalAmount - goal.currentAmount);
 
     updateDocumentNonBlocking(goalRef, {
       name,
