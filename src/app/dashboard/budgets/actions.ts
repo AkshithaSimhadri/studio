@@ -10,6 +10,7 @@ import {
 import type { Category, Expense, Income } from "@/lib/types";
 import { initializeAdminApp } from "@/firebase/admin";
 import { headers } from "next/headers";
+import { getAuth } from "firebase-admin/auth";
 
 // Categorize expenses into Needs, Wants, and Savings/Other
 const needsCategories: Category[] = ["Groceries", "Bills & Utilities", "Transport", "Health", "Rent"];
@@ -19,11 +20,11 @@ async function getUserId() {
     const headersList = headers();
     const authorization = headersList.get('Authorization');
     if (!authorization?.startsWith('Bearer ')) {
+        console.error("No authorization header found");
         throw new Error('Unauthorized');
     }
     const idToken = authorization.split('Bearer ')[1];
-    const { auth } = await initializeAdminApp();
-    const decodedToken = await auth.verifyIdToken(idToken);
+    const decodedToken = await getAuth().verifyIdToken(idToken);
     return decodedToken.uid;
 }
 
@@ -41,7 +42,17 @@ async function getUserData(userId: string) {
 
 export async function getBudgetingRecommendations(): Promise<FullBudgetingRecommendationsOutput | { error: string }> {
   try {
-    const userId = await getUserId();
+    const { auth } = await initializeAdminApp();
+    const headersList = headers();
+    const authorization = headersList.get('Authorization');
+
+    if (!authorization?.startsWith('Bearer ')) {
+        throw new Error('Unauthorized');
+    }
+    const idToken = authorization.split('Bearer ')[1];
+    const decodedToken = await auth.verifyIdToken(idToken);
+    const userId = decodedToken.uid;
+
     const { incomes, expenses } = await getUserData(userId);
 
     const totalIncome = incomes.reduce((sum, t) => sum + t.amount, 0);
@@ -108,7 +119,7 @@ export async function getBudgetingRecommendations(): Promise<FullBudgetingRecomm
 
   } catch (e: any) {
     console.error("Error in getBudgetingRecommendations:", e);
-    if (e.message === 'Unauthorized') {
+    if (e.code === 'auth/id-token-expired' || e.message === 'Unauthorized') {
         return { error: "Authentication error. Please log in again." };
     }
     return { error: "Failed to get budgeting recommendations." };
