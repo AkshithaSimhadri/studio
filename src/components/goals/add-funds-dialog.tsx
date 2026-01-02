@@ -16,7 +16,7 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import { PiggyBank } from 'lucide-react';
-import { useUser, useFirestore } from '@/firebase';
+import { useUser, useFirestore, updateDocumentNonBlocking } from '@/firebase';
 import { doc, increment, updateDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import type { FinancialGoal } from '@/lib/types';
@@ -32,7 +32,7 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
   // Calculate the total goal amount for display purposes
   const totalGoal = goal.currentAmount + goal.targetAmount;
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const fundAmount = parseFloat(amount);
     if (isNaN(fundAmount) || fundAmount <= 0 || !user || !firestore) {
       toast({
@@ -45,29 +45,20 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
 
     const goalRef = doc(firestore, 'users', user.uid, 'financial_goals', goal.id);
 
-    try {
-        await updateDoc(goalRef, {
-            currentAmount: increment(fundAmount),
-            targetAmount: increment(-fundAmount),
-        });
+    // Use a non-blocking update for an optimistic UI.
+    updateDocumentNonBlocking(goalRef, {
+        currentAmount: increment(fundAmount),
+        targetAmount: increment(-fundAmount),
+    });
 
-        toast({
-            title: 'Funds Added',
-            description: `$${fundAmount.toFixed(2)} has been contributed to your "${goal.name}" goal.`,
-        });
+    toast({
+        title: 'Funds Added',
+        description: `$${fundAmount.toFixed(2)} has been contributed to your "${goal.name}" goal.`,
+    });
 
-        // Reset form and close dialog
-        setAmount('');
-        setOpen(false);
-
-    } catch (error) {
-        console.error("Error adding funds:", error);
-        toast({
-            variant: "destructive",
-            title: "Update Failed",
-            description: "Could not add funds to the goal. Please try again."
-        });
-    }
+    // Reset form and close dialog immediately
+    setAmount('');
+    setOpen(false);
   };
 
   return (
