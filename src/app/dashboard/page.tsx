@@ -11,6 +11,7 @@ import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebas
 import { collection } from 'firebase/firestore';
 import { useMemo } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
+import { MotivationCard } from "@/components/dashboard/motivation-card";
 
 function StatSkeletons() {
   return (
@@ -97,6 +98,9 @@ export default function DashboardPage() {
                 <RecentTransactions expenses={expenses || []} incomes={incomes || []} isLoading={isLoadingStats} />
             </div>
         </div>
+         <div className="grid gap-4 md:grid-cols-2">
+            <MotivationCard />
+         </div>
          <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold tracking-tight">Financial Goals</h2>
