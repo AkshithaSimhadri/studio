@@ -49,7 +49,7 @@ export function BudgetingForm() {
         <CardHeader>
           <CardTitle className="font-headline">Get Your Personalized Budget Plan</CardTitle>
           <CardDescription>
-            Let our AI analyze your spending and create a budget to help you reach your goals faster.
+            Let's analyze your spending and create a budget to help you reach your goals faster.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -82,7 +82,7 @@ export function BudgetingForm() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <PiggyBank className="text-primary" /> Budget Recommendations
+                <PiggyBank className="text-primary" /> 50/30/20 Budget Recommendations
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -100,7 +100,7 @@ export function BudgetingForm() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Lightbulb className="text-accent" /> AI Savings Tips
+                <Lightbulb className="text-accent" /> Common Savings Tips
               </CardTitle>
             </CardHeader>
             <CardContent>

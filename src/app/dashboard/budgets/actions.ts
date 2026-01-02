@@ -2,10 +2,6 @@
 "use server";
 
 import {
-  budgetingRecommendations,
-  type BudgetingRecommendationsInput,
-} from "@/ai/flows/budgeting-recommendations.ts";
-import {
   type FullBudgetingRecommendationsOutput,
 } from "@/ai/flows/budgeting-recommendations.types";
 import type { Category, Expense, Income } from "@/lib/types";
@@ -38,7 +34,6 @@ async function getUserData(userId: string) {
 export async function getBudgetingRecommendations(idToken: string): Promise<FullBudgetingRecommendationsOutput | { error: string }> {
   try {
     const userId = await getUserIdFromToken(idToken);
-
     const { incomes, expenses } = await getUserData(userId);
 
     const totalIncome = incomes.reduce((sum, t) => sum + t.amount, 0);
@@ -50,27 +45,7 @@ export async function getBudgetingRecommendations(idToken: string): Promise<Full
       }
     }
 
-    const expenseByCategory = expenses.reduce((acc, expense) => {
-        if (!acc[expense.category]) {
-            acc[expense.category] = 0;
-        }
-        acc[expense.category] += expense.amount;
-        return acc;
-    }, {} as Record<Category, number>);
-
-    // Prepare input for AI
-    const aiInput: BudgetingRecommendationsInput = {
-      income: totalIncome,
-      expenses: Object.entries(expenseByCategory).map(([category, amount]) => ({
-        category: category,
-        amount: amount,
-      })),
-    };
-
-    // 1. Call AI for creative task (savings tips)
-    const aiOutput = await budgetingRecommendations(aiInput);
-
-    // 2. Calculate budget recommendations in code (logical task)
+    // Calculate budget recommendations in code (logical task)
     const needsSpend = expenses
         .filter(e => needsCategories.includes(e.category))
         .reduce((sum, e) => sum + e.amount, 0);
@@ -102,17 +77,26 @@ export async function getBudgetingRecommendations(idToken: string): Promise<Full
         }
     ];
 
+    // Static, non-AI savings tips
+    const savingsTips = [
+        "Review your subscriptions and cancel any you don't use.",
+        "Try cooking at home more often instead of eating out.",
+        "Set up automatic transfers to a high-yield savings account.",
+        "Look for generic brands for common household items.",
+        "Use a programmable thermostat to save on energy bills."
+    ];
+
     // 3. Combine results
     const finalOutput: FullBudgetingRecommendationsOutput = {
       budgetRecommendations,
-      savingsTips: aiOutput.savingsTips,
+      savingsTips,
     };
     
     return finalOutput;
 
   } catch (e: any) {
     console.error("Error in getBudgetingRecommendations:", e);
-    if (e.message === 'Unauthorized' || (e.code && e.code.startsWith('auth/'))) {
+    if (e.code && (e.code.startsWith('auth/id-token-expired') || e.code.startsWith('auth/argument-error'))) {
         return { error: "Authentication error. Please log in again." };
     }
     return { error: "Failed to get budgeting recommendations." };
