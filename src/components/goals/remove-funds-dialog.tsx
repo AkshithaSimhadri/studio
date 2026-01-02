@@ -15,9 +15,15 @@ import {
   DialogTrigger,
   DialogClose,
 } from '@/components/ui/dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { MinusCircle } from 'lucide-react';
-import { useUser, useFirestore } from '@/firebase';
-import { doc, increment, updateDoc } from 'firebase/firestore';
+import { useUser, useFirestore, updateDocumentNonBlocking } from '@/firebase';
+import { doc, increment } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import type { FinancialGoal } from '@/lib/types';
 
@@ -52,7 +58,7 @@ export function RemoveFundsDialog({ goal }: { goal: FinancialGoal }) {
     const goalRef = doc(firestore, 'users', user.uid, 'financial_goals', goal.id);
 
     try {
-      await updateDoc(goalRef, {
+      updateDocumentNonBlocking(goalRef, {
           currentAmount: increment(-fundAmount),
       });
 
@@ -77,12 +83,21 @@ export function RemoveFundsDialog({ goal }: { goal: FinancialGoal }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="destructive" size="sm" className="gap-1">
-          <MinusCircle className="h-4 w-4" />
-          Remove
-        </Button>
-      </DialogTrigger>
+       <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DialogTrigger asChild>
+              <Button variant="destructive" size="sm" className="gap-1">
+                <MinusCircle className="h-4 w-4" />
+                Remove
+              </Button>
+            </DialogTrigger>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Remove Funds</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Remove Funds from "{goal.name}"</DialogTitle>

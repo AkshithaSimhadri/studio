@@ -15,9 +15,15 @@ import {
   DialogTrigger,
   DialogClose,
 } from '@/components/ui/dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { PlusCircle } from 'lucide-react';
-import { useUser, useFirestore } from '@/firebase';
-import { doc, increment, updateDoc } from 'firebase/firestore';
+import { useUser, useFirestore, updateDocumentNonBlocking } from '@/firebase';
+import { doc, increment } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import type { FinancialGoal } from '@/lib/types';
 
@@ -43,8 +49,8 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
     const goalRef = doc(firestore, 'users', user.uid, 'financial_goals', goal.id);
 
     try {
-      await updateDoc(goalRef, {
-          currentAmount: increment(fundAmount),
+      updateDocumentNonBlocking(goalRef, {
+        currentAmount: increment(fundAmount),
       });
 
       toast({
@@ -68,12 +74,21 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1">
-          <PlusCircle className="h-4 w-4" />
-          Add
-        </Button>
-      </DialogTrigger>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-1">
+                <PlusCircle className="h-4 w-4" />
+                Add
+              </Button>
+            </DialogTrigger>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Add Funds</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add Funds to "{goal.name}"</DialogTitle>
