@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -40,7 +41,7 @@ export function AddTransactionSheet() {
   const [date, setDate] = useState('');
   const [open, setOpen] = useState(false);
 
-  const handleSubmit = async () => S => {
+  const handleSubmit = async () => {
     if (!description || !amount || !category || !date || !user || !firestore) {
         toast({
           variant: "destructive",
