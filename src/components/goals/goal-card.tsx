@@ -149,11 +149,11 @@ export function GoalCard({ goal }: { goal: FinancialGoal }) {
       <CardContent className="space-y-2 flex-grow">
         <div className="flex justify-between text-sm text-muted-foreground">
             <span>Progress</span>
-            <span className="font-semibold">{progress.toFixed(0)}%</span>
+            <span className="font-semibold">{progress.toFixed(1)}%</span>
         </div>
         <Progress
           value={progress}
-          aria-label={`${progress.toFixed(0)}% complete`}
+          aria-label={`${progress.toFixed(1)}% complete`}
         />
         <div className="text-sm grid grid-cols-2 gap-x-2">
           <div className="text-left">
