@@ -10,7 +10,7 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { categories } from '@/lib/types';
-import { ExtractedTransactionSchema } from './extract-transactions-from-pdf';
+import { ExtractedTransactionSchema } from '@/lib/types';
 
 const ExtractTransactionsCsvInputSchema = z.object({
   csvData: z

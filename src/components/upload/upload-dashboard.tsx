@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { UploadForm } from "@/components/upload/upload-form";
-import type { ExtractedTransaction } from "@/ai/flows/extract-transactions-from-pdf";
+import type { ExtractedTransaction } from "@/lib/types";
 
 import { DollarSign, TrendingUp, TrendingDown, Landmark } from "lucide-react";
 import { StatCard } from "@/components/dashboard/stat-card";

@@ -10,16 +10,7 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { categories } from '@/lib/types';
-
-export const ExtractedTransactionSchema = z.object({
-    date: z.string().describe("The date of the transaction in 'YYYY-MM-DD' format."),
-    description: z.string().describe("A brief description of the transaction."),
-    amount: z.number().describe("The transaction amount as a positive number."),
-    type: z.enum(['income', 'expense']).describe("The type of transaction."),
-    category: z.enum(categories).describe("The most likely category for the transaction."),
-});
-
-export type ExtractedTransaction = z.infer<typeof ExtractedTransactionSchema>;
+import { ExtractedTransaction, ExtractedTransactionSchema } from '@/lib/types';
 
 const ExtractTransactionsInputSchema = z.object({
   pdfDataUri: z

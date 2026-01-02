@@ -1,4 +1,5 @@
 
+
 // Base type for a transaction-like object
 interface TransactionLike {
   id: string;
@@ -61,3 +62,15 @@ export const categories = [
 ] as const;
 
 export type Category = (typeof categories)[number];
+
+import { z } from 'zod';
+
+export const ExtractedTransactionSchema = z.object({
+    date: z.string().describe("The date of the transaction in 'YYYY-MM-DD' format."),
+    description: z.string().describe("A brief description of the transaction."),
+    amount: z.number().describe("The transaction amount as a positive number."),
+    type: z.enum(['income', 'expense']).describe("The type of transaction."),
+    category: z.enum(categories).describe("The most likely category for the transaction."),
+});
+
+export type ExtractedTransaction = z.infer<typeof ExtractedTransactionSchema>;
