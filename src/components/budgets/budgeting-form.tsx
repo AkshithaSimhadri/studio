@@ -126,7 +126,7 @@ export function BudgetingForm() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-gradient-to-br from-primary via-fuchsia-500 to-accent text-primary-foreground">
+      <Card className="bg-gradient-to-br from-accent to-fuchsia-500 text-primary-foreground">
         <CardHeader>
           <CardTitle className="font-headline">Get Your 50/30/20 Budget Plan</CardTitle>
           <CardDescription className="text-primary-foreground/80">
