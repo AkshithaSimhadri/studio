@@ -9,7 +9,7 @@ import { AddGoalDialog } from "@/components/goals/add-goal-dialog";
 import type { Expense, FinancialGoal, Income } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { collection } from 'firebase/firestore';
-import { useMemo }s from 'react';
+import { useMemo } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 
 function StatSkeletons() {
