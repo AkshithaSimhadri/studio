@@ -25,26 +25,26 @@ export function MotivationCard() {
   return (
     <div className="relative group overflow-hidden rounded-lg">
       <div
-        className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-border-spin"
+        className="absolute -inset-1 bg-gradient-to-r from-yellow-400 via-gold-500 to-orange-500 rounded-lg blur-lg opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-border-spin"
       ></div>
-      <Card className="relative bg-gradient-to-r from-primary via-accent to-fuchsia-500 bg-[length:200%_200%] animate-gradient-shift">
+      <Card className="relative bg-gray-900">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-primary-foreground">
+          <CardTitle className="flex items-center gap-2 text-white">
             <BrainCircuit /> Daily Motivation
           </CardTitle>
         </CardHeader>
         <CardContent>
           {quote ? (
             <figure>
-              <blockquote className="border-l-4 border-primary-foreground/50 pl-4 italic text-primary-foreground/90">
+              <blockquote className="border-l-4 border-yellow-400/50 pl-4 italic text-white/90">
                 "{quote.text}"
               </blockquote>
-              <figcaption className="mt-2 text-right text-sm font-semibold text-primary-foreground">
+              <figcaption className="mt-2 text-right text-sm font-semibold text-white">
                 - {quote.author}
               </figcaption>
             </figure>
           ) : (
-            <p className="text-primary-foreground">Loading your daily dose of motivation...</p>
+            <p className="text-white">Loading your daily dose of motivation...</p>
           )}
         </CardContent>
       </Card>

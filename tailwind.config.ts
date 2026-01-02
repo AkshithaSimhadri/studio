@@ -64,6 +64,9 @@ export default {
           '5': 'hsl(var(--chart-5))',
         },
         footer: 'hsl(var(--footer))',
+        gold: {
+          '500': '#D4AF37', // A nice gold color
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
