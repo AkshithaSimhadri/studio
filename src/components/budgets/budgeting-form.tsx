@@ -9,6 +9,7 @@ import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebas
 import { collection } from 'firebase/firestore';
 import type { Income, Expense } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 
 const genericSavingsTips = [
     "Review your subscriptions and cancel any you don't use.",
@@ -17,6 +18,9 @@ const genericSavingsTips = [
     "Look for generic brands instead of name brands to save on groceries.",
     "Use a programmable thermostat to save on heating and cooling costs."
 ];
+
+const needsCategories = ["Groceries", "Bills & Utilities", "Transport", "Health", "Rent"];
+const wantsCategories = ["Food", "Shopping", "Entertainment", "Travel"];
 
 export function BudgetingForm() {
   const [recommendations, setRecommendations] = useState<any | null>(null);
@@ -62,15 +66,15 @@ export function BudgetingForm() {
     }
 
     const needsSpend = expenses
-        .filter(e => ["Groceries", "Bills & Utilities", "Transport", "Health", "Rent"].includes(e.category))
+        .filter(e => needsCategories.includes(e.category))
         .reduce((sum, e) => sum + e.amount, 0);
 
     const wantsSpend = expenses
-        .filter(e => ["Food", "Shopping", "Entertainment", "Travel"].includes(e.category))
+        .filter(e => wantsCategories.includes(e.category))
         .reduce((sum, e) => sum + e.amount, 0);
     
     const otherSpend = expenses
-        .filter(e => !["Groceries", "Bills & Utilities", "Transport", "Health", "Rent", "Food", "Shopping", "Entertainment", "Travel"].includes(e.category))
+        .filter(e => ![...needsCategories, ...wantsCategories].includes(e.category))
         .reduce((sum, e) => sum + e.amount, 0);
 
     const totalSpend = needsSpend + wantsSpend + otherSpend;
@@ -82,19 +86,19 @@ export function BudgetingForm() {
     
     const budgetRecommendations = [
         {
-            category: "Needs",
+            category: "Needs (50%)",
             currentAmount: needsSpend,
             recommendedAmount: needsTarget,
             rationale: `You're currently spending $${needsSpend.toFixed(2)}. The 50/30/20 rule suggests a target of $${needsTarget.toFixed(2)}.`
         },
         {
-            category: "Wants",
+            category: "Wants (30%)",
             currentAmount: wantsSpend,
             recommendedAmount: wantsTarget,
             rationale: `You're currently spending $${wantsSpend.toFixed(2)}. The 50/30/20 rule suggests a target of $${wantsTarget.toFixed(2)}.`
         },
         {
-            category: "Savings",
+            category: "Savings (20%)",
             currentAmount: currentSavings,
             recommendedAmount: savingsTarget,
             rationale: `You're currently saving $${currentSavings.toFixed(2)}. Aim to save at least $${savingsTarget.toFixed(2)} per month.`
@@ -122,14 +126,24 @@ export function BudgetingForm() {
 
   return (
     <div className="space-y-6">
-      <Card className="text-center">
+      <Card>
         <CardHeader>
-          <CardTitle className="font-headline">Get Your Budget Plan</CardTitle>
+          <CardTitle className="font-headline">Get Your 50/30/20 Budget Plan</CardTitle>
           <CardDescription>
-            Let's analyze your spending and create a budget to help you reach your goals faster using the 50/30/20 rule.
+            Let's analyze your spending and create a budget to help you reach your goals. The 50/30/20 rule is a simple way to manage your money: 50% for needs, 30% for wants, and 20% for savings.
           </CardDescription>
         </CardHeader>
         <CardContent>
+           <Accordion type="single" collapsible className="mb-4">
+                <AccordionItem value="item-1" className="border-none">
+                    <AccordionTrigger className="text-sm p-0 hover:no-underline">What are needs, wants, and savings?</AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground text-sm space-y-2 pt-2">
+                        <p><strong className="text-foreground">Needs:</strong> These are your essential expenses required for survival, like housing, utilities, groceries, and healthcare.</p>
+                        <p><strong className="text-foreground">Wants:</strong> These are non-essential expenses that improve your quality of life, such as dining out, shopping, hobbies, and entertainment.</p>
+                        <p><strong className="text-foreground">Savings:</strong> This includes paying off debt, investing for the future, and building an emergency fund.</p>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
           <Button onClick={handleSubmit} disabled={loading || isDataLoading}>
             {loading ? (
               <>
@@ -160,7 +174,7 @@ export function BudgetingForm() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <PiggyBank className="text-primary" /> 50/30/20 Budget Recommendations
+                <PiggyBank className="text-primary" /> Budget Recommendations
               </CardTitle>
               <CardDescription>Based on your spending, here is a suggested budget.</CardDescription>
             </CardHeader>
