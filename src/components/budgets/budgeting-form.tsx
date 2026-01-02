@@ -68,7 +68,14 @@ export function BudgetingForm() {
     const wantsSpend = expenses
         .filter(e => ["Food", "Shopping", "Entertainment", "Travel"].includes(e.category))
         .reduce((sum, e) => sum + e.amount, 0);
+    
+    const otherSpend = expenses
+        .filter(e => !["Groceries", "Bills & Utilities", "Transport", "Health", "Rent", "Food", "Shopping", "Entertainment", "Travel"].includes(e.category))
+        .reduce((sum, e) => sum + e.amount, 0);
 
+    const totalSpend = needsSpend + wantsSpend + otherSpend;
+    const currentSavings = totalIncome - totalSpend;
+    
     const needsTarget = totalIncome * 0.5;
     const wantsTarget = totalIncome * 0.3;
     const savingsTarget = totalIncome * 0.2;
@@ -76,20 +83,32 @@ export function BudgetingForm() {
     const budgetRecommendations = [
         {
             category: "Needs",
+            currentAmount: needsSpend,
             recommendedAmount: needsTarget,
             rationale: `You're currently spending $${needsSpend.toFixed(2)}. The 50/30/20 rule suggests a target of $${needsTarget.toFixed(2)}.`
         },
         {
             category: "Wants",
+            currentAmount: wantsSpend,
             recommendedAmount: wantsTarget,
             rationale: `You're currently spending $${wantsSpend.toFixed(2)}. The 50/30/20 rule suggests a target of $${wantsTarget.toFixed(2)}.`
         },
         {
             category: "Savings",
+            currentAmount: currentSavings,
             recommendedAmount: savingsTarget,
-            rationale: `Based on your income, you should aim to save at least $${savingsTarget.toFixed(2)} per month.`
+            rationale: `You're currently saving $${currentSavings.toFixed(2)}. Aim to save at least $${savingsTarget.toFixed(2)} per month.`
         }
     ];
+
+    if (otherSpend > 0) {
+        budgetRecommendations.push({
+            category: "Other",
+            currentAmount: otherSpend,
+            recommendedAmount: 0,
+            rationale: `You have $${otherSpend.toFixed(2)} in uncategorized or 'Other' spending. Try to allocate this to Needs or Wants.`
+        });
+    }
 
     setRecommendations({
         budgetRecommendations,
@@ -105,9 +124,9 @@ export function BudgetingForm() {
     <div className="space-y-6">
       <Card className="text-center">
         <CardHeader>
-          <CardTitle className="font-headline">Get Your Personalized Budget Plan</CardTitle>
+          <CardTitle className="font-headline">Get Your Budget Plan</CardTitle>
           <CardDescription>
-            Let our AI analyze your spending and create a budget to help you reach your goals faster.
+            Let's analyze your spending and create a budget to help you reach your goals faster using the 50/30/20 rule.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -150,7 +169,10 @@ export function BudgetingForm() {
                 <div key={index} className="p-4 rounded-lg border">
                   <div className="flex justify-between items-center">
                     <h3 className="font-semibold">{rec.category}</h3>
-                    <p className="font-bold text-primary">${rec.recommendedAmount.toFixed(2)}</p>
+                    <div className='text-right'>
+                        <p className="font-bold text-primary">${rec.recommendedAmount.toFixed(2)} <span className="text-sm font-normal text-muted-foreground"> (Target)</span></p>
+                         <p className="text-sm font-semibold">${rec.currentAmount.toFixed(2)} <span className="text-sm font-normal text-muted-foreground"> (Actual)</span></p>
+                    </div>
                   </div>
                   <p className="text-sm text-muted-foreground mt-1">{rec.rationale}</p>
                 </div>
