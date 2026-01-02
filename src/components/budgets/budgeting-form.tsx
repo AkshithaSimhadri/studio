@@ -1,46 +1,102 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PiggyBank, Lightbulb, Loader2 } from "lucide-react";
 import type { FullBudgetingRecommendationsOutput } from "@/ai/flows/budgeting-recommendations.types";
-import { useUser } from "@/firebase";
-import { getBudgetingRecommendations } from "@/app/dashboard/budgets/actions";
+import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
+import { collection } from 'firebase/firestore';
+import type { Category, Expense, Income } from "@/lib/types";
+
+const needsCategories: Category[] = ["Groceries", "Bills & Utilities", "Transport", "Health", "Rent"];
+const wantsCategories: Category[] = ["Food", "Shopping", "Entertainment", "Travel"];
 
 export function BudgetingForm() {
   const [recommendations, setRecommendations] = useState<FullBudgetingRecommendationsOutput | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [showResults, setShowResults] = useState(false);
+
   const { user } = useUser();
+  const firestore = useFirestore();
 
-  const handleSubmit = async () => {
-    setLoading(true);
-    setError(null);
-    setRecommendations(null);
+  const incomesQuery = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return collection(firestore, 'users', user.uid, 'incomes');
+  }, [user, firestore]);
 
-    if (!user) {
-      setError("You must be logged in to get recommendations.");
-      setLoading(false);
-      return;
+  const expensesQuery = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return collection(firestore, 'users', user.uid, 'expenses');
+  }, [user, firestore]);
+
+  const { data: incomes, isLoading: isLoadingIncomes } = useCollection<Income>(incomesQuery);
+  const { data: expenses, isLoading: isLoadingExpenses } = useCollection<Expense>(expensesQuery);
+
+  const loading = isLoadingIncomes || isLoadingExpenses;
+
+  const generatedRecommendations = useMemo(() => {
+    if (!incomes || !expenses) {
+      return null;
+    }
+    
+    const totalIncome = incomes.reduce((sum, t) => sum + t.amount, 0);
+
+    if (totalIncome === 0) {
+      return {
+        budgetRecommendations: [],
+        savingsTips: ["Start by adding some income to create a budget plan."]
+      };
     }
 
-    try {
-      const idToken = await user.getIdToken();
-      const result = await getBudgetingRecommendations(idToken);
-      
-      if (result && 'error' in result) {
-        throw new Error(result.error || "An unexpected error occurred.");
-      }
-      
-      setRecommendations(result);
+    const needsSpend = expenses
+        .filter(e => needsCategories.includes(e.category))
+        .reduce((sum, e) => sum + e.amount, 0);
 
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
+    const wantsSpend = expenses
+        .filter(e => wantsCategories.includes(e.category))
+        .reduce((sum, e) => sum + e.amount, 0);
+
+    const needsTarget = totalIncome * 0.5;
+    const wantsTarget = totalIncome * 0.3;
+    const savingsTarget = totalIncome * 0.2;
+
+    const budgetRecommendations = [
+        {
+            category: "Needs",
+            recommendedAmount: needsTarget,
+            rationale: `You are currently spending $${needsSpend.toFixed(2)}. The 50/30/20 rule suggests a target of $${needsTarget.toFixed(2)}.`
+        },
+        {
+            category: "Wants",
+            recommendedAmount: wantsTarget,
+            rationale: `You are currently spending $${wantsSpend.toFixed(2)}. The 50/30/20 rule suggests a target of $${wantsTarget.toFixed(2)}.`
+        },
+        {
+            category: "Savings",
+            recommendedAmount: savingsTarget,
+            rationale: `Based on the 50/30/20 rule, you should aim to save at least $${savingsTarget.toFixed(2)} per month.`
+        }
+    ];
+
+    const savingsTips = [
+        "Review your subscriptions and cancel any you don't use.",
+        "Try cooking at home more often instead of eating out.",
+        "Set up automatic transfers to a high-yield savings account.",
+        "Look for generic brands for common household items.",
+        "Use a programmable thermostat to save on energy bills."
+    ];
+
+    return {
+      budgetRecommendations,
+      savingsTips,
+    };
+  }, [incomes, expenses]);
+
+
+  const handleSubmit = () => {
+    setShowResults(true);
+    setRecommendations(generatedRecommendations);
   };
 
   return (
@@ -57,7 +113,7 @@ export function BudgetingForm() {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
+                Loading Data...
               </>
             ) : (
               "Generate My Budget"
@@ -65,19 +121,8 @@ export function BudgetingForm() {
           </Button>
         </CardContent>
       </Card>
-      
-      {error && (
-        <Card className="border-destructive">
-          <CardHeader>
-            <CardTitle className="text-destructive">An Error Occurred</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>{error}</p>
-          </CardContent>
-        </Card>
-      )}
 
-      {recommendations && (
+      {showResults && recommendations && (
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader>
