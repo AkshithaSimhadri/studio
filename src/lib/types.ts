@@ -31,8 +31,8 @@ export type FinancialGoal = {
   id: string;
   userId: string;
   name: string;
-  targetAmount: number; // This will now represent the *remaining* amount.
-  currentAmount: number; // This will represent the *contributed* amount.
+  targetAmount: number; // The total goal amount. This does not change when funds are added.
+  currentAmount: number; // The amount currently saved towards the goal.
   targetDate: string;
 };
 

@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { FinancialGoal } from '@/lib/types';
@@ -9,12 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -22,14 +17,14 @@ import { differenceInDays, formatDistanceToNow, parseISO } from 'date-fns';
 import { useState, useEffect } from 'react';
 import { AddFundsDialog } from './add-funds-dialog';
 import { EditGoalDialog } from './edit-goal-dialog';
-import { MoreVertical, Pencil } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import { deleteDocumentNonBlocking, useUser, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 type DeadlineInfo = {
   text: string;
-  variant: 'destructive' | 'secondary' | 'outline';
+  variant: 'destructive' | 'secondary' | 'outline' | 'default';
 };
 
 export function GoalCard({ goal }: { goal: FinancialGoal }) {
@@ -38,14 +33,13 @@ export function GoalCard({ goal }: { goal: FinancialGoal }) {
   const firestore = useFirestore();
   const { toast } = useToast();
 
-  const totalAmount = goal.targetAmount + goal.currentAmount;
-  const progress = totalAmount > 0 ? (goal.currentAmount / totalAmount) * 100 : 100;
+  const progress = goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 100;
 
   useEffect(() => {
     const deadline = parseISO(goal.targetDate);
     const daysLeft = differenceInDays(deadline, new Date());
 
-    const getDeadlineBadgeVariant = () => {
+    const getDeadlineBadgeVariant = (): 'destructive' | 'secondary' | 'outline' | 'default' => {
       if (progress >= 100) return 'default';
       if (daysLeft < 0) return 'destructive';
       if (daysLeft < 30) return 'secondary';
@@ -95,7 +89,7 @@ export function GoalCard({ goal }: { goal: FinancialGoal }) {
           <span className="font-bold text-foreground">
             ${goal.currentAmount.toLocaleString()}
           </span>{' '}
-          / ${totalAmount.toLocaleString()}
+          / ${goal.targetAmount.toLocaleString()}
         </p>
       </CardContent>
       <CardFooter className="flex justify-between">

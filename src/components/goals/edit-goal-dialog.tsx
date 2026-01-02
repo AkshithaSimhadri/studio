@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -31,14 +32,14 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
   const { toast } = useToast();
 
   const [name, setName] = useState(goal.name);
-  const [targetAmount, setTargetAmount] = useState((goal.targetAmount + goal.currentAmount).toString());
+  const [targetAmount, setTargetAmount] = useState(goal.targetAmount.toString());
   const [targetDate, setTargetDate] = useState('');
   const [open, setOpen] = useState(false);
   
   useEffect(() => {
     if (goal) {
         setName(goal.name);
-        setTargetAmount((goal.targetAmount + goal.currentAmount).toString());
+        setTargetAmount(goal.targetAmount.toString());
         // Format date to YYYY-MM-DD for the input
         setTargetDate(format(new Date(goal.targetDate), 'yyyy-MM-dd'));
     }
@@ -57,13 +58,11 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
 
     const goalRef = doc(firestore, 'users', user.uid, 'financial_goals', goal.id);
 
-    // When updating, we set the targetAmount to be the new total target
-    // minus what has already been contributed.
     const newTotalAmount = parseFloat(targetAmount);
 
     updateDocumentNonBlocking(goalRef, {
       name,
-      targetAmount: newTotalAmount - goal.currentAmount, // This is the new remaining amount
+      targetAmount: newTotalAmount, // Set the new total target amount
       targetDate: new Date(targetDate).toISOString(),
     });
 
