@@ -48,6 +48,7 @@ export default function TransactionsPage() {
   const isLoading = isLoadingExpenses || isLoadingIncomes;
 
   return (
+    <div className="rounded-xl p-4 md:p-6 lg:p-8 -m-4 md:-m-6 lg:-m-8 bg-gradient-to-br from-blue-100 via-teal-100 to-blue-100 bg-[length:400%_400%] animate-subtle-shift dark:from-blue-900/30 dark:via-background dark:to-teal-900/30 h-full">
       <div className="space-y-6 h-full">
         <div className="flex items-center justify-between">
           <div>
@@ -66,5 +67,6 @@ export default function TransactionsPage() {
           <EmptyState />
         )}
       </div>
+    </div>
   );
 }

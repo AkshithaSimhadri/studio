@@ -43,7 +43,7 @@ export default function DashboardLayout({
           <div className="flex flex-col flex-1 bg-secondary">
             <AppHeader />
             <main className="flex-1 p-4 md:p-6 lg:p-8">
-               <div className="rounded-xl p-4 md:p-6 lg:p-8 -m-4 md:-m-6 lg:-m-8 bg-gradient-to-br from-pink-100 via-pink-50 to-pink-100 bg-[length:400%_400%] animate-subtle-shift dark:from-pink-900/30 dark:via-background dark:to-pink-900/30 h-full">
+               <div className="h-full">
                 {children}
               </div>
             </main>

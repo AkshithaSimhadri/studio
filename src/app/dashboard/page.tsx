@@ -55,44 +55,46 @@ export default function DashboardPage() {
   const isLoadingStats = isLoadingIncomes || isLoadingExpenses;
 
   return (
-    <div className="flex-1 space-y-4">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {isLoadingStats ? <StatSkeletons/> : (
-              <>
-                <StatCard 
-                    title="Total Balance"
-                    value={totalBalance.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                    icon={Landmark}
-                />
-                <StatCard 
-                    title="Total Income"
-                    value={totalIncome.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                    icon={TrendingUp}
-                />
-                <StatCard 
-                    title="Total Expenses"
-                    value={totalExpenses.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                    icon={TrendingDown}
-                />
-                <StatCard 
-                    title="Savings Rate"
-                    value={`${savingsRate.toFixed(1)}%`}
-                    icon={DollarSign}
-                />
-              </>
-            )}
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <div className="lg:col-span-4">
-                <OverviewChart incomes={incomes || []} expenses={expenses || []} isLoading={isLoadingStats} />
-            </div>
-            <div className="lg:col-span-3">
-                <RecentTransactions expenses={expenses || []} incomes={incomes || []} isLoading={isLoadingStats} />
-            </div>
-        </div>
-         <div className="grid gap-4 md:grid-cols-2">
-            <MotivationCard />
-         </div>
+    <div className="rounded-xl p-4 md:p-6 lg:p-8 -m-4 md:-m-6 lg:-m-8 bg-gradient-to-br from-pink-100 via-purple-100 to-pink-100 bg-[length:400%_400%] animate-subtle-shift dark:from-pink-900/30 dark:via-background dark:to-purple-900/30 h-full">
+      <div className="flex-1 space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {isLoadingStats ? <StatSkeletons/> : (
+                <>
+                  <StatCard 
+                      title="Total Balance"
+                      value={totalBalance.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                      icon={Landmark}
+                  />
+                  <StatCard 
+                      title="Total Income"
+                      value={totalIncome.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                      icon={TrendingUp}
+                  />
+                  <StatCard 
+                      title="Total Expenses"
+                      value={totalExpenses.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                      icon={TrendingDown}
+                  />
+                  <StatCard 
+                      title="Savings Rate"
+                      value={`${savingsRate.toFixed(1)}%`}
+                      icon={DollarSign}
+                  />
+                </>
+              )}
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+              <div className="lg:col-span-4">
+                  <OverviewChart incomes={incomes || []} expenses={expenses || []} isLoading={isLoadingStats} />
+              </div>
+              <div className="lg:col-span-3">
+                  <RecentTransactions expenses={expenses || []} incomes={incomes || []} isLoading={isLoadingStats} />
+              </div>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+              <MotivationCard />
+          </div>
+      </div>
     </div>
   );
 }

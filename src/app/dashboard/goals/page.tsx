@@ -37,32 +37,34 @@ export default function GoalsPage() {
   const { data: goals, isLoading } = useCollection<FinancialGoal>(goalsQuery);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight font-headline inline-block text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-fuchsia-500 bg-[length:200%_200%] animate-gradient-shift">Financial Goals</h1>
-          <p className="text-muted-foreground">
-            Track your progress towards your dreams.
-          </p>
+    <div className="rounded-xl p-4 md:p-6 lg:p-8 -m-4 md:-m-6 lg:-m-8 bg-gradient-to-br from-yellow-100 via-amber-100 to-yellow-100 bg-[length:400%_400%] animate-subtle-shift dark:from-yellow-900/30 dark:via-background dark:to-amber-900/30 h-full">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight font-headline inline-block text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-fuchsia-500 bg-[length:200%_200%] animate-gradient-shift">Financial Goals</h1>
+            <p className="text-muted-foreground">
+              Track your progress towards your dreams.
+            </p>
+          </div>
+          <AddGoalDialog />
         </div>
-        <AddGoalDialog />
-      </div>
 
-      {isLoading ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <Skeleton className="h-48 w-full" />
-          <Skeleton className="h-48 w-full" />
-          <Skeleton className="h-48 w-full" />
-        </div>
-      ) : goals && goals.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {goals.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} />
-          ))}
-        </div>
-      ) : (
-        <EmptyState />
-      )}
+        {isLoading ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-48 w-full" />
+          </div>
+        ) : goals && goals.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {goals.map((goal) => (
+              <GoalCard key={goal.id} goal={goal} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState />
+        )}
+      </div>
     </div>
   );
 }
