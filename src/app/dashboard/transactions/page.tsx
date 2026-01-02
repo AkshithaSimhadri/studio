@@ -47,23 +47,25 @@ export default function TransactionsPage() {
   const isLoading = isLoadingExpenses || isLoadingIncomes;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight font-headline inline-block text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-fuchsia-500 bg-[length:200%_200%] animate-gradient-shift">
-            Transactions
-          </h1>
-          <p className="text-muted-foreground">
-            View and manage your income and expenses.
-          </p>
+    <div className="rounded-xl p-4 md:p-6 lg:p-8 -m-4 md:-m-6 lg:-m-8 bg-gradient-to-br from-background via-secondary to-muted bg-[length:400%_400%] animate-subtle-shift">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight font-headline inline-block text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-fuchsia-500 bg-[length:200%_200%] animate-gradient-shift">
+              Transactions
+            </h1>
+            <p className="text-muted-foreground">
+              View and manage your income and expenses.
+            </p>
+          </div>
+          <AddTransactionSheet />
         </div>
-        <AddTransactionSheet />
+        {transactions.length > 0 || isLoading ? (
+          <TransactionsTable transactions={transactions} isLoading={isLoading} />
+        ) : (
+          <EmptyState />
+        )}
       </div>
-      {transactions.length > 0 || isLoading ? (
-        <TransactionsTable transactions={transactions} isLoading={isLoading} />
-      ) : (
-        <EmptyState />
-      )}
     </div>
   );
 }
