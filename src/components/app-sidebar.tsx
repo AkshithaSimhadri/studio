@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import Link from "next/link";
@@ -63,7 +64,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar>
+    <Sidebar className="bg-gradient-to-b from-primary/10 via-purple-500/10 to-primary/10 bg-[length:400%_400%] animate-subtle-shift">
       <SidebarHeader>
         <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" className="md:hidden" asChild>
