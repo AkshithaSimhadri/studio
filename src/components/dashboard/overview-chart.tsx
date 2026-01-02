@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { Expense, Income } from "@/lib/types";
 import { useMemo } from "react";
 import { Skeleton } from "../ui/skeleton";
-import { format } from 'date-fns';
+import { format, subMonths, getYear, getMonth } from 'date-fns';
 
 const chartConfig = {
   income: {
@@ -30,55 +30,42 @@ export function OverviewChart({ incomes, expenses, isLoading }: OverviewChartPro
 
   const chartData = useMemo(() => {
     const dataByMonth: { [key: string]: { income: number; expenses: number } } = {};
+    const today = new Date();
 
-    const processTransactions = (transactions: (Income | Expense)[], type: 'income' | 'expense') => {
-      transactions.forEach(t => {
-        const transactionDate = new Date(t.date);
-        const monthKey = format(transactionDate, 'MMM yyyy');
-
+    // 1. Generate keys for the last 6 months
+    for (let i = 5; i >= 0; i--) {
+        const date = subMonths(today, i);
+        const monthKey = format(date, 'MMM yyyy');
         if (!dataByMonth[monthKey]) {
-          dataByMonth[monthKey] = { income: 0, expenses: 0 };
+            dataByMonth[monthKey] = { income: 0, expenses: 0 };
         }
-        dataByMonth[monthKey][type] += t.amount;
-      });
-    };
-
-    processTransactions(incomes, 'income');
-    processTransactions(expenses, 'expense');
-
-    const sortedMonthKeys = Object.keys(dataByMonth).sort((a, b) => {
-        return new Date(a).getTime() - new Date(b).getTime();
-    });
-
-    // Get the last 6 months from the sorted keys
-    const last6MonthKeys = sortedMonthKeys.slice(-6);
-
-    const finalChartData = last6MonthKeys.map(key => ({
-      month: key.split(' ')[0], // just the 'MMM' part
-      ...dataByMonth[key]
-    }));
-
-    // If there are fewer than 6 months of data, fill with empty months
-    if (finalChartData.length < 6) {
-        const today = new Date();
-        const pastMonths: {month: string, income: number, expenses: number}[] = [];
-        for (let i = 5; i >= 0; i--) {
-            const d = new Date();
-            d.setMonth(today.getMonth() - i);
-            const monthKey = format(d, 'MMM yyyy');
-            const monthLabel = format(d, 'MMM');
-
-            if (!dataByMonth[monthKey]) {
-                pastMonths.push({ month: monthLabel, income: 0, expenses: 0 });
-            } else {
-                pastMonths.push({ month: monthLabel, ...dataByMonth[monthKey]});
-            }
-        }
-        const uniqueMonths = [...new Map(pastMonths.map(item => [item.month, item])).values()];
-        return uniqueMonths.slice(-6);
     }
     
-    return finalChartData;
+    // 2. Process incomes and expenses
+    incomes.forEach(t => {
+      const transactionDate = new Date(t.date);
+      const monthKey = format(transactionDate, 'MMM yyyy');
+      if (dataByMonth.hasOwnProperty(monthKey)) {
+        dataByMonth[monthKey].income += t.amount;
+      }
+    });
+
+    expenses.forEach(t => {
+        const transactionDate = new Date(t.date);
+        const monthKey = format(transactionDate, 'MMM yyyy');
+        if (dataByMonth.hasOwnProperty(monthKey)) {
+          dataByMonth[monthKey].expenses += t.amount;
+        }
+      });
+    
+    // 3. Format data for the chart, ensuring chronological order
+    return Object.keys(dataByMonth)
+      .map(key => ({
+        month: key.split(' ')[0], // 'MMM' part
+        year: key.split(' ')[1],
+        ...dataByMonth[key]
+      }))
+      .sort((a, b) => new Date(`${a.month} 1, ${a.year}`).getTime() - new Date(`${b.month} 1, ${b.year}`).getTime());
 
   }, [incomes, expenses]);
 
