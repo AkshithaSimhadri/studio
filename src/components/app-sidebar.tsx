@@ -64,15 +64,15 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className="bg-gradient-to-b from-primary/10 via-purple-500/10 to-primary/10 bg-[length:400%_400%] animate-subtle-shift">
+    <Sidebar className="bg-gradient-to-br from-primary via-accent to-fuchsia-500 bg-[length:200%_200%] animate-gradient-shift text-primary-foreground">
       <SidebarHeader>
         <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="md:hidden" asChild>
+            <Button variant="ghost" size="icon" className="md:hidden text-primary-foreground hover:bg-white/20 hover:text-primary-foreground" asChild>
               <SidebarTrigger>
-                <Landmark className="h-6 w-6 text-primary" />
+                <Landmark className="h-6 w-6" />
               </SidebarTrigger>
             </Button>
-            <Landmark className="h-6 w-6 text-primary" />
+            <Landmark className="h-6 w-6" />
             <h1 className="text-xl font-bold font-headline">FinanceWise</h1>
         </div>
       </SidebarHeader>
@@ -84,6 +84,7 @@ export function AppSidebar() {
                 asChild
                 isActive={pathname === item.href}
                 tooltip={item.label}
+                className="text-primary-foreground hover:bg-white/20 data-[active=true]:bg-white/20"
               >
                 <Link href={item.href}>
                   <item.icon />
@@ -97,7 +98,7 @@ export function AppSidebar() {
       <SidebarFooter>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-             <div className="flex items-center gap-3 p-2 rounded-md border border-border bg-card hover:bg-accent cursor-pointer transition-colors">
+             <div className="flex items-center gap-3 p-2 rounded-md border border-white/20 bg-black/10 hover:bg-black/20 cursor-pointer transition-colors">
                 <Avatar>
                     <AvatarImage src={user?.photoURL ?? undefined} />
                     <AvatarFallback>
@@ -106,7 +107,7 @@ export function AppSidebar() {
                 </Avatar>
                 <div className="flex flex-col overflow-hidden">
                     <span className="text-sm font-semibold truncate">{user?.displayName || user?.email}</span>
-                    <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
+                    <span className="text-xs opacity-80 truncate">{user?.email}</span>
                 </div>
             </div>
           </DropdownMenuTrigger>
