@@ -14,14 +14,29 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, MoreHorizontal, Trash2 } from "lucide-react";
 import { categories, type Category, type Transaction } from "@/lib/types";
 import { Skeleton } from "../ui/skeleton";
 import { format } from 'date-fns';
+import { useUser, useFirestore, deleteDocumentNonBlocking } from "@/firebase";
+import { doc } from 'firebase/firestore';
+import { useToast } from "@/hooks/use-toast";
 
 type TransactionsTableProps = {
   transactions: Transaction[];
@@ -30,6 +45,23 @@ type TransactionsTableProps = {
 
 export function TransactionsTable({ transactions, isLoading }: TransactionsTableProps) {
   const [categoryFilter, setCategoryFilter] = React.useState<Category[]>([]);
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
+
+  const handleDelete = (transaction: Transaction) => {
+    if (!user || !firestore) return;
+    
+    const collectionName = transaction.type === 'income' ? 'incomes' : 'expenses';
+    const docRef = doc(firestore, 'users', user.uid, collectionName, transaction.id);
+
+    deleteDocumentNonBlocking(docRef);
+
+    toast({
+      title: "Transaction Deleted",
+      description: `The transaction "${transaction.description}" has been removed.`,
+    });
+  };
 
   const filteredTransactions = transactions.filter(
     (transaction) =>
@@ -84,6 +116,7 @@ export function TransactionsTable({ transactions, isLoading }: TransactionsTable
             <TableHead>Category</TableHead>
             <TableHead>Date</TableHead>
             <TableHead className="text-right">Amount</TableHead>
+            <TableHead className="w-[50px] text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -117,6 +150,41 @@ export function TransactionsTable({ transactions, isLoading }: TransactionsTable
               >
                 {transaction.type === "income" ? "+" : "-"}
                 ${transaction.amount.toFixed(2)}
+              </TableCell>
+              <TableCell className="text-right">
+                <AlertDialog>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">More options</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <AlertDialogTrigger asChild>
+                               <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onSelect={(e) => e.preventDefault()}
+                                >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>Delete</span>
+                                </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete this transaction.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(transaction)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
               </TableCell>
             </TableRow>
           ))}
