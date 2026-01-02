@@ -126,26 +126,26 @@ export function BudgetingForm() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-primary/5">
+      <Card className="bg-gradient-to-br from-primary via-fuchsia-500 to-accent text-primary-foreground">
         <CardHeader>
           <CardTitle className="font-headline">Get Your 50/30/20 Budget Plan</CardTitle>
-          <CardDescription>
+          <CardDescription className="text-primary-foreground/80">
             Let's analyze your spending and create a budget to help you reach your goals. The 50/30/20 rule is a simple way to manage your money: 50% for needs, 30% for wants, and 20% for savings.
           </CardDescription>
         </CardHeader>
         <CardContent>
-           <Accordion type="single" collapsible className="mb-4">
-                <AccordionItem value="item-1" className="border-none">
+           <Accordion type="single" collapsible className="mb-4 text-primary-foreground">
+                <AccordionItem value="item-1" className="border-b-primary-foreground/20">
                     <AccordionTrigger className="text-sm p-0 hover:no-underline">What are needs, wants, and savings?</AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground text-sm space-y-2 pt-2">
-                        <p><strong className="text-foreground">Needs:</strong> Essentials for survival. In this app, these include: <span className="italic">{needsCategories.join(', ')}.</span></p>
-                        <p><strong className="text-foreground">Wants:</strong> Non-essential expenses that improve your quality of life. In this app, these include: <span className="italic">{wantsCategories.join(', ')}.</span></p>
-                        <p><strong className="text-foreground">Savings:</strong> Money for your future, like paying off debt, investing, or building an emergency fund.</p>
-                        <p><strong className="text-foreground">Other:</strong> Any expenses not categorized as needs or wants will fall here.</p>
+                    <AccordionContent className="text-primary-foreground/80 text-sm space-y-2 pt-2">
+                        <p><strong className="text-primary-foreground">Needs:</strong> Essentials for survival. In this app, these include: <span className="italic">{needsCategories.join(', ')}.</span></p>
+                        <p><strong className="text-primary-foreground">Wants:</strong> Non-essential expenses that improve your quality of life. In this app, these include: <span className="italic">{wantsCategories.join(', ')}.</span></p>
+                        <p><strong className="text-primary-foreground">Savings:</strong> Money for your future, like paying off debt, investing, or building an emergency fund.</p>
+                        <p><strong className="text-primary-foreground">Other:</strong> Any expenses not categorized as needs or wants will fall here.</p>
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
-          <Button onClick={handleSubmit} disabled={loading || isDataLoading}>
+          <Button onClick={handleSubmit} disabled={loading || isDataLoading} variant="secondary" className="text-secondary-foreground">
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
