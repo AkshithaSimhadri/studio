@@ -15,13 +15,13 @@ import {
   DialogTrigger,
   DialogClose,
 } from '@/components/ui/dialog';
-import { PlusCircle } from 'lucide-react';
+import { MinusCircle } from 'lucide-react';
 import { useUser, useFirestore } from '@/firebase';
 import { doc, increment, updateDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import type { FinancialGoal } from '@/lib/types';
 
-export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
+export function RemoveFundsDialog({ goal }: { goal: FinancialGoal }) {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
@@ -40,26 +40,35 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
       return;
     }
 
+    if (fundAmount > goal.currentAmount) {
+        toast({
+            variant: 'destructive',
+            title: 'Invalid Amount',
+            description: 'Cannot remove more funds than you have saved.',
+        });
+        return;
+    }
+
     const goalRef = doc(firestore, 'users', user.uid, 'financial_goals', goal.id);
 
     try {
       await updateDoc(goalRef, {
-          currentAmount: increment(fundAmount),
+          currentAmount: increment(-fundAmount),
       });
 
       toast({
-          title: 'Funds Added',
-          description: `$${fundAmount.toFixed(2)} has been contributed to your "${goal.name}" goal.`,
+          title: 'Funds Removed',
+          description: `$${fundAmount.toFixed(2)} has been removed from your "${goal.name}" goal.`,
       });
 
       setAmount('');
       setOpen(false);
     } catch (error) {
-        console.error("Error adding funds: ", error);
+        console.error("Error removing funds: ", error);
         toast({
             variant: 'destructive',
             title: 'Error',
-            description: 'Could not add funds to your goal.',
+            description: 'Could not remove funds from your goal.',
         });
     }
   };
@@ -69,15 +78,15 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1">
-          <PlusCircle className="h-4 w-4" />
-          Add
+        <Button variant="destructive" size="sm" className="gap-1">
+          <MinusCircle className="h-4 w-4" />
+          Remove
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Funds to "{goal.name}"</DialogTitle>
-          <DialogDescription>
+          <DialogTitle>Remove Funds from "{goal.name}"</DialogTitle>
+           <DialogDescription>
             Target: ${goal.targetAmount.toLocaleString()} | Saved: ${goal.currentAmount.toLocaleString()} | Remaining: ${remainingAmount > 0 ? remainingAmount.toLocaleString() : 0}
           </DialogDescription>
         </DialogHeader>
@@ -100,8 +109,8 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button type="submit" onClick={handleSubmit}>
-            Save contribution
+          <Button type="submit" variant="destructive" onClick={handleSubmit}>
+            Confirm Removal
           </Button>
         </DialogFooter>
       </DialogContent>

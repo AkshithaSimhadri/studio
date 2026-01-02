@@ -38,6 +38,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { RemoveFundsDialog } from './remove-funds-dialog';
 
 
 type DeadlineInfo = {
@@ -51,13 +52,16 @@ export function GoalCard({ goal }: { goal: FinancialGoal }) {
   const firestore = useFirestore();
   const { toast } = useToast();
   
-  const progress = useMemo(() => {
-    // The targetAmount is the total goal.
-    // Calculate progress as a percentage of the total goal.
-    // If the total is 0, consider it 100% complete.
-    if (goal.targetAmount <= 0) return 100;
+  const { progress, remainingAmount } = useMemo(() => {
+    if (goal.targetAmount <= 0) {
+      return { progress: goal.currentAmount > 0 ? 100 : 0, remainingAmount: 0 };
+    }
     const prog = (goal.currentAmount / goal.targetAmount) * 100;
-    return Math.min(100, prog); // Cap progress at 100%
+    const remaining = goal.targetAmount - goal.currentAmount;
+    return {
+      progress: Math.min(100, prog),
+      remainingAmount: remaining > 0 ? remaining : 0,
+    };
   }, [goal.currentAmount, goal.targetAmount]);
 
 
@@ -95,7 +99,7 @@ export function GoalCard({ goal }: { goal: FinancialGoal }) {
             <div className="flex-1 pr-2">
                 <CardTitle className="truncate">{goal.name}</CardTitle>
                 <CardDescription>
-                Deadline: {new Date(goal.targetDate).toLocaleDateString()}
+                Target: ${goal.targetAmount.toLocaleString()}
                 </CardDescription>
             </div>
             <DropdownMenu>
@@ -151,21 +155,27 @@ export function GoalCard({ goal }: { goal: FinancialGoal }) {
           value={progress}
           aria-label={`${progress.toFixed(0)}% complete`}
         />
-        <p className="text-sm text-muted-foreground text-right">
-          <span className="font-bold text-foreground">
-            ${goal.currentAmount.toLocaleString()}
-          </span>
-          {' / '}
-          <span>${goal.targetAmount.toLocaleString()}</span>
-        </p>
+        <div className="text-sm grid grid-cols-2 gap-x-2">
+          <div className="text-left">
+              <div className="font-bold text-foreground">${goal.currentAmount.toLocaleString()}</div>
+              <div className="text-muted-foreground">Saved</div>
+          </div>
+          <div className="text-right">
+              <div className="font-bold text-foreground">${remainingAmount.toLocaleString()}</div>
+              <div className="text-muted-foreground">Remaining</div>
+          </div>
+        </div>
       </CardContent>
-      <CardFooter className="flex justify-between">
+      <CardFooter className="flex justify-between items-center pt-4">
         {deadlineInfo ? (
           <Badge variant={deadlineInfo.variant}>{deadlineInfo.text}</Badge>
         ) : (
           <div className="h-6 w-24 animate-pulse rounded-full bg-muted" />
         )}
-        {progress < 100 && <AddFundsDialog goal={goal} />}
+        <div className="flex gap-2">
+          {progress < 100 && <AddFundsDialog goal={goal} />}
+          {goal.currentAmount > 0 && <RemoveFundsDialog goal={goal} />}
+        </div>
       </CardFooter>
     </Card>
   );
