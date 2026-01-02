@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { differenceInDays, formatDistanceToNow, parseISO } from 'date-fns';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { AddFundsDialog } from './add-funds-dialog';
 import { EditGoalDialog } from './edit-goal-dialog';
 import { MoreVertical, Pencil, Trash2 } from 'lucide-react';
@@ -50,8 +50,13 @@ export function GoalCard({ goal }: { goal: FinancialGoal }) {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+  
+  const { progress, totalGoal } = useMemo(() => {
+    const total = goal.currentAmount + goal.targetAmount;
+    const prog = total > 0 ? (goal.currentAmount / total) * 100 : 100;
+    return { progress: prog, totalGoal: total };
+  }, [goal.currentAmount, goal.targetAmount]);
 
-  const progress = goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 100;
 
   useEffect(() => {
     const deadline = parseISO(goal.targetDate);
@@ -143,7 +148,7 @@ export function GoalCard({ goal }: { goal: FinancialGoal }) {
           <span className="font-bold text-foreground">
             ${goal.currentAmount.toLocaleString()}
           </span>{' '}
-          / ${goal.targetAmount.toLocaleString()}
+          / ${totalGoal.toLocaleString()}
         </p>
       </CardContent>
       <CardFooter className="flex justify-between">

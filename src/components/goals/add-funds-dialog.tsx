@@ -29,6 +29,9 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
   const [amount, setAmount] = useState('');
   const [open, setOpen] = useState(false);
 
+  // Calculate the total goal amount for display purposes
+  const totalGoal = goal.currentAmount + goal.targetAmount;
+
   const handleSubmit = () => {
     const fundAmount = parseFloat(amount);
     if (isNaN(fundAmount) || fundAmount <= 0 || !user || !firestore) {
@@ -44,15 +47,17 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
 
     // This is a non-blocking "optimistic" update.
     // The useCollection hook on the goals page will see the change in real-time.
+    // We increment the current amount and decrement the target amount.
     updateDocumentNonBlocking(goalRef, {
       currentAmount: increment(fundAmount),
+      targetAmount: increment(-fundAmount),
     });
 
     toast({
       title: 'Funds Added',
       description: `$${fundAmount.toFixed(
         2
-      )} has been added to your "${goal.name}" goal.`,
+      )} has been contributed to your "${goal.name}" goal.`,
     });
 
     // Reset form and close dialog
@@ -72,7 +77,8 @@ export function AddFundsDialog({ goal }: { goal: FinancialGoal }) {
         <DialogHeader>
           <DialogTitle>Add Funds to "{goal.name}"</DialogTitle>
           <DialogDescription>
-            Your current progress is ${goal.currentAmount.toLocaleString()} / ${goal.targetAmount.toLocaleString()}.
+            Saved: ${goal.currentAmount.toLocaleString()} / Total: ${totalGoal.toLocaleString()}.
+            Remaining: ${goal.targetAmount.toLocaleString()}.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">

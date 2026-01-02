@@ -31,23 +31,24 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
   const firestore = useFirestore();
   const { toast } = useToast();
 
+  // The total goal is the sum of what's saved and what's remaining.
+  const [totalGoalAmount, setTotalGoalAmount] = useState('0');
   const [name, setName] = useState(goal.name);
-  const [targetAmount, setTargetAmount] = useState(goal.targetAmount.toString());
   const [targetDate, setTargetDate] = useState('');
   const [open, setOpen] = useState(false);
   
   useEffect(() => {
     if (goal) {
         setName(goal.name);
-        setTargetAmount(goal.targetAmount.toString());
-        // Format date to YYYY-MM-DD for the input
+        const total = goal.currentAmount + goal.targetAmount;
+        setTotalGoalAmount(total.toString());
         setTargetDate(format(new Date(goal.targetDate), 'yyyy-MM-dd'));
     }
   }, [goal]);
 
 
   const handleSubmit = async () => {
-    if (!name || !targetAmount || !targetDate || !user || !firestore) {
+    if (!name || !totalGoalAmount || !targetDate || !user || !firestore) {
       toast({
         variant: 'destructive',
         title: 'Validation Error',
@@ -58,11 +59,14 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
 
     const goalRef = doc(firestore, 'users', user.uid, 'financial_goals', goal.id);
 
-    const newTotalAmount = parseFloat(targetAmount);
+    const newTotalAmount = parseFloat(totalGoalAmount);
+    // The new targetAmount (remaining) is the new total minus what's already saved.
+    const newRemainingAmount = newTotalAmount - goal.currentAmount;
+
 
     updateDocumentNonBlocking(goalRef, {
       name,
-      targetAmount: newTotalAmount, // Set the new total target amount
+      targetAmount: newRemainingAmount, // This is the new remaining amount
       targetDate: new Date(targetDate).toISOString(),
     });
 
@@ -104,8 +108,8 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
               id="target"
               type="number"
               className="col-span-3"
-              value={targetAmount}
-              onChange={(e) => setTargetAmount(e.target.value)}
+              value={totalGoalAmount}
+              onChange={(e) => setTotalGoalAmount(e.target.value)}
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">

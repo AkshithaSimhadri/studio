@@ -42,11 +42,13 @@ export function AddGoalDialog() {
 
     const goalsCol = collection(firestore, 'users', user.uid, 'financial_goals');
     
+    // When a new goal is created, the targetAmount IS the remaining amount,
+    // and the currentAmount is 0.
     await addDocumentNonBlocking(goalsCol, {
       userId: user.uid,
       name,
-      targetAmount: parseFloat(targetAmount),
-      currentAmount: 0,
+      targetAmount: parseFloat(targetAmount), // This is the amount remaining
+      currentAmount: 0, // Nothing has been saved yet
       targetDate: new Date(targetDate).toISOString(),
     });
     
