@@ -1,3 +1,4 @@
+
 'use client';
 
 import { TransactionsTable } from '@/components/transactions/transactions-table';
@@ -47,7 +48,7 @@ export default function TransactionsPage() {
   const isLoading = isLoadingExpenses || isLoadingIncomes;
 
   return (
-    <div className="rounded-xl p-4 md:p-6 lg:p-8 -m-4 md:-m-6 lg:-m-8 bg-gradient-to-br from-background via-secondary to-muted bg-[length:400%_400%] animate-subtle-shift">
+    <div className="rounded-xl p-4 md:p-6 lg:p-8 -m-4 md:-m-6 lg:-m-8 bg-gradient-to-br from-secondary via-muted to-secondary bg-[length:400%_400%] animate-subtle-shift">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
