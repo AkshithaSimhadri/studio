@@ -14,13 +14,13 @@ async function getUserIdFromToken(idToken: string) {
     if (!idToken) {
         throw new Error('Unauthorized');
     }
-    const { auth } = await initializeAdminApp();
+    const { auth } = initializeAdminApp();
     const decodedToken = await auth.verifyIdToken(idToken);
     return decodedToken.uid;
 }
 
 async function getUserData(userId: string) {
-    const { firestore } = await initializeAdminApp();
+    const { firestore } = initializeAdminApp();
     const incomesSnap = await firestore.collection(`users/${userId}/incomes`).get();
     const expensesSnap = await firestore.collection(`users/${userId}/expenses`).get();
     
@@ -45,7 +45,6 @@ export async function getBudgetingRecommendations(idToken: string): Promise<Full
       }
     }
 
-    // Calculate budget recommendations in code (logical task)
     const needsSpend = expenses
         .filter(e => needsCategories.includes(e.category))
         .reduce((sum, e) => sum + e.amount, 0);
@@ -54,7 +53,6 @@ export async function getBudgetingRecommendations(idToken: string): Promise<Full
         .filter(e => wantsCategories.includes(e.category))
         .reduce((sum, e) => sum + e.amount, 0);
 
-    // Apply 50/30/20 rule
     const needsTarget = totalIncome * 0.5;
     const wantsTarget = totalIncome * 0.3;
     const savingsTarget = totalIncome * 0.2;
@@ -77,7 +75,6 @@ export async function getBudgetingRecommendations(idToken: string): Promise<Full
         }
     ];
 
-    // Static, non-AI savings tips
     const savingsTips = [
         "Review your subscriptions and cancel any you don't use.",
         "Try cooking at home more often instead of eating out.",
@@ -86,7 +83,6 @@ export async function getBudgetingRecommendations(idToken: string): Promise<Full
         "Use a programmable thermostat to save on energy bills."
     ];
 
-    // 3. Combine results
     const finalOutput: FullBudgetingRecommendationsOutput = {
       budgetRecommendations,
       savingsTips,
@@ -96,7 +92,7 @@ export async function getBudgetingRecommendations(idToken: string): Promise<Full
 
   } catch (e: any) {
     console.error("Error in getBudgetingRecommendations:", e);
-    if (e.code && (e.code.startsWith('auth/id-token-expired') || e.code.startsWith('auth/argument-error'))) {
+    if (e.code && (e.code.startsWith('auth/id-token-expired') || e.code.startsWith('auth/argument-error') || e.code.startsWith('auth/invalid-id-token'))) {
         return { error: "Authentication error. Please log in again." };
     }
     return { error: "Failed to get budgeting recommendations." };
