@@ -17,10 +17,28 @@ import { differenceInDays, formatDistanceToNow, parseISO } from 'date-fns';
 import { useState, useEffect } from 'react';
 import { AddFundsDialog } from './add-funds-dialog';
 import { EditGoalDialog } from './edit-goal-dialog';
-import { Pencil } from 'lucide-react';
+import { MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { deleteDocumentNonBlocking, useUser, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+
 
 type DeadlineInfo = {
   text: string;
@@ -66,18 +84,54 @@ export function GoalCard({ goal }: { goal: FinancialGoal }) {
     <Card className="flex flex-col">
       <CardHeader>
         <div className="flex justify-between items-start">
-            <div className="flex-1">
+            <div className="flex-1 pr-2">
                 <CardTitle className="truncate">{goal.name}</CardTitle>
                 <CardDescription>
                 Deadline: {new Date(goal.targetDate).toLocaleDateString()}
                 </CardDescription>
             </div>
-            <EditGoalDialog goal={goal}>
-              <Button variant="ghost" size="icon" className="h-8 w-8 -mt-2 -mr-2">
-                <Pencil className="h-4 w-4" />
-                <span className="sr-only">Edit Goal</span>
-              </Button>
-            </EditGoalDialog>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 -mt-2 -mr-2">
+                  <MoreVertical className="h-4 w-4" />
+                  <span className="sr-only">More options</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <EditGoalDialog goal={goal}>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <Pencil className="mr-2 h-4 w-4" />
+                    <span>Edit</span>
+                  </DropdownMenuItem>
+                </EditGoalDialog>
+                
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                     <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onSelect={(e) => e.preventDefault()}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      <span>Delete</span>
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete your goal
+                        and all of its data.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
+              </DropdownMenuContent>
+            </DropdownMenu>
         </div>
       </CardHeader>
       <CardContent className="space-y-2 flex-grow">
