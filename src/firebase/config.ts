@@ -1,9 +1,9 @@
 export const firebaseConfig = {
-  "projectId": "monospace-6",
-  "appId": "1:1075691032363:web:75638c413b63b218151b14",
-  "apiKey": "AIzaSyAzg_p0039A_19b_u_lI8kI_4N2Avs3-qE",
-  "authDomain": "monospace-6.firebaseapp.com",
-  "measurementId": "G-T012JCH1K0",
-  "messagingSenderId": "1075691032363",
-  "storageBucket": "monospace-6.appspot.com"
+  "projectId": "studio-9869068542-4222c",
+  "appId": "1:742379897140:web:b1e1c1e2cc4ee556b12561",
+  "apiKey": "AIzaSyBBGW0iv0OCJBirEr9uD-rarDsulDWu8Ao",
+  "authDomain": "studio-9869068542-4222c.firebaseapp.com",
+  "measurementId": "",
+  "messagingSenderId": "742379897140",
+  "storageBucket": "studio-9869068542-4222c.appspot.com"
 };
