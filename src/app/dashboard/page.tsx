@@ -4,9 +4,7 @@ import { DollarSign, TrendingUp, TrendingDown, Landmark } from "lucide-react";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { OverviewChart } from "@/components/dashboard/overview-chart";
 import { RecentTransactions } from "@/components/dashboard/recent-transactions";
-import { GoalCard } from "@/components/goals/goal-card";
-import { AddGoalDialog } from "@/components/goals/add-goal-dialog";
-import type { Expense, FinancialGoal, Income } from '@/lib/types';
+import type { Expense, Income } from '@/lib/types';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { collection } from 'firebase/firestore';
 import { useMemo } from 'react';
@@ -38,15 +36,9 @@ export default function DashboardPage() {
     return collection(firestore, 'users', user.uid, 'incomes');
   }, [firestore, user]);
 
-  const goalsQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return collection(firestore, 'users', user.uid, 'financial_goals');
-  }, [firestore, user]);
-  
   const { data: expenses, isLoading: isLoadingExpenses } = useCollection<Expense>(expensesQuery);
   const { data: incomes, isLoading: isLoadingIncomes } = useCollection<Income>(incomesQuery);
-  const { data: goals, isLoading: isLoadingGoals } = useCollection<FinancialGoal>(goalsQuery);
-
+  
   const { totalIncome, totalExpenses, totalBalance, savingsRate } = useMemo(() => {
     const income = incomes?.reduce((sum, item) => sum + item.amount, 0) || 0;
     const expense = expenses?.reduce((sum, item) => sum + item.amount, 0) || 0;
@@ -101,24 +93,6 @@ export default function DashboardPage() {
          <div className="grid gap-4 md:grid-cols-2">
             <MotivationCard />
          </div>
-         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold tracking-tight">Financial Goals</h2>
-            <AddGoalDialog />
-          </div>
-           {isLoadingGoals ? (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <Skeleton className="h-40 w-full" />
-              <Skeleton className="h-40 w-full" />
-            </div>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {goals?.map((goal) => (
-                <GoalCard key={goal.id} goal={goal} />
-              ))}
-            </div>
-          )}
-        </div>
     </div>
   );
 }
