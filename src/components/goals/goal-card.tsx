@@ -52,7 +52,10 @@ export function GoalCard({ goal }: { goal: FinancialGoal }) {
   const { toast } = useToast();
   
   const { progress, totalGoal } = useMemo(() => {
+    // The total goal is the sum of what's been saved and what's remaining.
     const total = goal.currentAmount + goal.targetAmount;
+    // Calculate progress as a percentage of the total goal.
+    // If the total is 0 (goal fully funded with 0 amount), consider it 100% complete.
     const prog = total > 0 ? (goal.currentAmount / total) * 100 : 100;
     return { progress: prog, totalGoal: total };
   }, [goal.currentAmount, goal.targetAmount]);
@@ -140,15 +143,20 @@ export function GoalCard({ goal }: { goal: FinancialGoal }) {
         </div>
       </CardHeader>
       <CardContent className="space-y-2 flex-grow">
+        <div className="flex justify-between text-sm text-muted-foreground">
+            <span>Progress</span>
+            <span className="font-semibold">{progress.toFixed(0)}%</span>
+        </div>
         <Progress
           value={progress}
           aria-label={`${progress.toFixed(0)}% complete`}
         />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground text-right">
           <span className="font-bold text-foreground">
             ${goal.currentAmount.toLocaleString()}
-          </span>{' '}
-          / ${totalGoal.toLocaleString()}
+          </span>
+          {' / '}
+          <span>${totalGoal.toLocaleString()}</span>
         </p>
       </CardContent>
       <CardFooter className="flex justify-between">
