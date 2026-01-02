@@ -37,7 +37,7 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
   const [open, setOpen] = useState(false);
   
   useEffect(() => {
-    if (goal) {
+    if (goal && open) {
         setName(goal.name);
         setTargetAmount(goal.targetAmount.toString());
         // Ensure date is in 'yyyy-MM-dd' format for the input
@@ -48,7 +48,7 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
           setTargetDate('');
         }
     }
-  }, [goal]);
+  }, [goal, open]);
 
 
   const handleSubmit = async () => {
@@ -64,7 +64,7 @@ export function EditGoalDialog({ goal, children }: EditGoalDialogProps) {
     const goalRef = doc(firestore, 'users', user.uid, 'financial_goals', goal.id);
 
     const newTargetAmount = parseFloat(targetAmount);
-    if (isNaN(newTargetAmount) || newTargetAmount <= 0) {
+    if (isNaN(newTargetAmount) || newTargetAmount < 0) {
         toast({
             variant: 'destructive',
             title: 'Invalid Target',
