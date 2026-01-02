@@ -63,7 +63,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className="bg-gradient-to-br from-primary via-accent to-fuchsia-500 bg-[length:200%_200%] animate-subtle-shift text-primary-foreground">
+    <Sidebar className="bg-gradient-to-br from-primary via-accent to-fuchsia-500 bg-[length:200%_200%] text-primary-foreground">
       <SidebarHeader>
         <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" className="md:hidden text-primary-foreground hover:bg-white/20 hover:text-primary-foreground" asChild>
