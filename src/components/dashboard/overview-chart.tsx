@@ -29,30 +29,34 @@ export function OverviewChart({ incomes, expenses, isLoading }: OverviewChartPro
 
   const chartData = useMemo(() => {
     const dataByMonth: { [key: string]: { income: number; expenses: number } } = {};
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    // Initialize last 6 months in dataByMonth
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+      const monthName = months[d.getMonth()];
+      dataByMonth[monthName] = { income: 0, expenses: 0 };
+    }
 
     const processTransactions = (transactions: (Income | Expense)[], type: 'income' | 'expense') => {
       transactions.forEach(t => {
-        const month = new Date(t.date).toLocaleString('default', { month: 'short' });
-        if (!dataByMonth[month]) {
-          dataByMonth[month] = { income: 0, expenses: 0 };
+        const transactionDate = new Date(t.date);
+        const month = months[transactionDate.getMonth()];
+        // Only include transactions from the last 6 months
+        if (dataByMonth.hasOwnProperty(month)) {
+          if (!dataByMonth[month]) {
+            dataByMonth[month] = { income: 0, expenses: 0 };
+          }
+          dataByMonth[month][type] += t.amount;
         }
-        dataByMonth[month][type] += t.amount;
       });
     };
 
     processTransactions(incomes, 'income');
     processTransactions(expenses, 'expense');
 
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    
-    // Get last 6 months
-    const last6Months = Array.from({length: 6}, (_, i) => {
-        const d = new Date();
-        d.setMonth(d.getMonth() - i);
-        return months[d.getMonth()];
-    }).reverse();
-
-    return last6Months.map(month => ({
+    return Object.keys(dataByMonth).map(month => ({
       month,
       income: dataByMonth[month]?.income || 0,
       expenses: dataByMonth[month]?.expenses || 0
