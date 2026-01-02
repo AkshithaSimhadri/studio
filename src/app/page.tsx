@@ -1,20 +1,72 @@
+'use client';
+import { useState, useEffect } from 'react';
 import Image from "next/image";
 import Link from "next/link";
 import { Landmark } from "lucide-react";
+import { useRouter } from 'next/navigation';
+import {
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { LoginForm } from "@/components/auth/login-form";
+import { useAuth, useUser, useFirestore } from '@/firebase';
 
 export default function LoginPage() {
   const authBgImage = PlaceHolderImages.find(
     (img) => img.id === "auth-background"
   );
+  const auth = useAuth();
+  const firestore = useFirestore();
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!isUserLoading && user) {
+      router.push('/dashboard');
+    }
+  }, [user, isUserLoading, router]);
+
+  const handleEmailLogin = async (data: { email: string; password: string }) => {
+    setIsSubmitting(true);
+    await signInWithEmailAndPassword(auth, data.email, data.password);
+    // Let the useEffect handle the redirect
+    setIsSubmitting(false);
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsSubmitting(true);
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    // Create user profile in Firestore if it doesn't exist
+    const userRef = doc(firestore, 'users', user.uid);
+    await setDoc(userRef, {
+        id: user.uid,
+        firstName: user.displayName?.split(' ')[0] || '',
+        lastName: user.displayName?.split(' ')[1] || '',
+        email: user.email,
+        registrationDate: new Date().toISOString(),
+    }, { merge: true });
+
+    // Let the useEffect handle the redirect
+    setIsSubmitting(false);
+  };
 
   return (
     <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2 xl:min-h-screen">
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid w-[350px] gap-6">
-          <LoginForm />
+          <LoginForm
+            onEmailLogin={handleEmailLogin}
+            onGoogleLogin={handleGoogleLogin}
+            isSubmitting={isSubmitting}
+          />
         </div>
       </div>
       <div className="hidden bg-muted lg:block relative">
@@ -44,3 +96,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    

@@ -1,20 +1,56 @@
+'use client';
+import { useState, useEffect } from 'react';
 import Image from "next/image";
 import Link from "next/link";
 import { Landmark } from "lucide-react";
+import { useRouter } from 'next/navigation';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { RegisterForm } from "@/components/auth/register-form";
+import { RegisterForm, type RegisterSchema } from "@/components/auth/register-form";
+import { useAuth, useUser, useFirestore } from '@/firebase';
 
 export default function RegisterPage() {
   const authBgImage = PlaceHolderImages.find(
     (img) => img.id === "auth-background"
   );
+  const auth = useAuth();
+  const firestore = useFirestore();
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!isUserLoading && user) {
+      router.push('/dashboard');
+    }
+  }, [user, isUserLoading, router]);
+
+  const handleRegister = async (data: RegisterSchema) => {
+    setIsSubmitting(true);
+    const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+    const newUser = userCredential.user;
+
+    // Create user profile in Firestore
+    const userRef = doc(firestore, 'users', newUser.uid);
+    await setDoc(userRef, {
+      id: newUser.uid,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      registrationDate: new Date().toISOString(),
+    });
+    
+    // Let the useEffect handle the redirect
+    setIsSubmitting(false);
+  };
 
   return (
     <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2 xl:min-h-screen">
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid w-[350px] gap-6">
-          <RegisterForm />
+          <RegisterForm onRegister={handleRegister} isSubmitting={isSubmitting} />
         </div>
       </div>
       <div className="hidden bg-muted lg:block relative">
@@ -44,3 +80,5 @@ export default function RegisterPage() {
     </div>
   );
 }
+
+    

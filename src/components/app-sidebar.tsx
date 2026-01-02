@@ -27,7 +27,9 @@ import {
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useSidebar } from "@/components/ui/sidebar";
-import { useUser } from "@/context/user-context";
+import { useUser, useAuth } from "@/firebase";
+import { signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -42,6 +44,13 @@ export function AppSidebar() {
   const pathname = usePathname();
   const { isMobile } = useSidebar();
   const { user } = useUser();
+  const auth = useAuth();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await signOut(auth);
+    router.push('/');
+  };
 
   return (
     <Sidebar>
@@ -85,27 +94,27 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Log out">
-              <Link href="/">
+            <SidebarMenuButton onClick={handleSignOut} tooltip="Log out">
                 <LogOut />
                 <span>Log out</span>
-              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
         <div className="flex items-center gap-3 p-2 rounded-md border border-border bg-card">
             <Avatar>
-                <AvatarImage src="https://picsum.photos/seed/user/40/40" />
+                <AvatarImage src={user?.photoURL ?? undefined} />
                 <AvatarFallback>
                     <UserCircle />
                 </AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
-                <span className="text-sm font-semibold">{user.name}</span>
-                <span className="text-xs text-muted-foreground">{user.email}</span>
+            <div className="flex flex-col overflow-hidden">
+                <span className="text-sm font-semibold truncate">{user?.displayName || user?.email}</span>
+                <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
             </div>
         </div>
       </SidebarFooter>
     </Sidebar>
   );
 }
+
+    

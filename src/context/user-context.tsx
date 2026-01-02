@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { useUser as useFirebaseUser } from '@/firebase';
 
 type User = {
   name: string;
@@ -15,10 +16,21 @@ type UserContextType = {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
+  const { user: firebaseUser } = useFirebaseUser();
   const [user, setUser] = useState<User>({
-    name: 'Alex Doe',
-    email: 'alex@example.com',
+    name: 'Alex Doe', // Default value
+    email: 'alex@example.com', // Default value
   });
+
+  useEffect(() => {
+    if (firebaseUser) {
+      setUser({
+        name: firebaseUser.displayName || firebaseUser.email || 'User',
+        email: firebaseUser.email || 'No email provided'
+      });
+    }
+  }, [firebaseUser]);
+
 
   return (
     <UserContext.Provider value={{ user, setUser }}>
@@ -34,3 +46,5 @@ export function useUser() {
   }
   return context;
 }
+
+    
